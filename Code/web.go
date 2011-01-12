@@ -50,12 +50,12 @@ func load() {
 			out.Put(err.String())
 		}
 	}
-	/*temp, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "LiberatorAdventures")
+	temp, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
 	if err != nil {
 		out.Put(err.String())
 	} else {
 		db = temp
-	}*/
+	}
 }
 
 func home(val string) string {
