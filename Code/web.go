@@ -24,7 +24,7 @@ func TopBar() string {
 }
 
 func postDiv() string {
-	bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + "postdiv.wgt")
+	bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + "post.wgt")
 	if err != nil {
 		return "<div><h3>{{Title}}</h3><br>{{Content}}</div>"
 	}
