@@ -42,6 +42,7 @@ type Post struct {
 func (me *Post) HTML() string {
 	retval := postDiv()
 	retval = strings.Replace(retval, "{{Title}}", me.Title, -1)
+	retval = strings.Replace(retval, "{{Author}}", me.Author, -1)
 	retval = strings.Replace(retval, "{{Content}}", me.Content, -1)
 	return retval
 }
