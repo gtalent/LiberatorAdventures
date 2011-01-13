@@ -4,13 +4,14 @@ import (
 	"io/ioutil"
 	"strings"
 	"strconv"
+	"log"
+	"os"
 	"web"
 	"couch-go.googlecode.com/hg"
 	"blinz/server"
 )
 
 var out *server.ChannelLine
-var db couch.Database
 var TopBar string
 var postDiv string
 
@@ -19,7 +20,7 @@ type BlogData struct {
 }
 
 type Post struct {
-	Title, Date, Content string
+	Title, Author, Date, Content string
 }
 
 func (me *Post) HTML() string {
@@ -50,31 +51,57 @@ func load() {
 			out.Put(err.String())
 		}
 	}
-	temp, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
-	if err != nil {
-		out.Put(err.String())
-	} else {
-		db = temp
-	}
 }
 
-func home(val string) string {
+func home(ctx *web.Context, val string) string {
 	switch val {
 	case "posts", "posts/":
+		db, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
+		if err != nil {
+			break
+		}
 		bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + "posts.html")
 		if err != nil {
-			return "Page not found, perhaps it was taken by Tusken Raiders?"
+			break
 		}
-		retval := strings.Replace(string(bytes), "{{Posts}}", val, -1)
+		blogData := new(BlogData)
+		user := ctx.Params["user"]
+		_, err = db.Retrieve("BlogData_" + user, blogData)
+		if err != nil {
+			retval := strings.Replace(string(bytes), "{{Posts}}", "No posts from " + user + ".", -1)
+			retval = strings.Replace(retval, "{{TopBar}}", TopBar, -1)
+			return retval
+		}
+		post := new(Post)
+		posts := ""
+		for i := blogData.PostCount; i > 0; i-- {
+			_, err := db.Retrieve("Post_" + strconv.Itoa(i) + "_" + user, post)
+			if err != nil {
+				post.Title = "Error: Post not found."
+				post.Content = "Error: Post not found."
+			} else {
+				post.Content = strings.Replace(post.Content, "\n", "<br>", -1)
+			}
+			posts += post.HTML() + "<br>"
+		}
+		retval := strings.Replace(string(bytes), "{{Posts}}", posts, -1)
 		retval = strings.Replace(retval, "{{TopBar}}", TopBar, -1)
 		return retval
 	}
 	return "Page not found, perhaps it was taken by Tusken Raiders?"
 }
 
+type dummy struct{}
+
+func (me dummy) Write(p []byte) (n int, err os.Error) {
+	return 0, nil
+}
+
 func RunWebServer(line *server.ChannelLine) {
 	out = line
 	load()
-	web.Get("/(.*)", home)
-	web.Run("0.0.0.0:" + strconv.Uitoa(server.Settings.WebPort()))
+	var s web.Server
+	s.Logger = log.New(new(dummy), "", 0)
+	s.Get("/liberator-blog/(.*)", home)
+	s.Run("0.0.0.0:" + strconv.Uitoa(server.Settings.WebPort()))
 }

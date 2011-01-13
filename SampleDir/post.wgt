@@ -1,4 +1,4 @@
-<div style="background:gray">
-	{{Title}}
+<div style="background:lightgray">
+	<h3>{{Title}}</h3>
 	{{Content}}
 </div>

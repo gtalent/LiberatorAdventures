@@ -1,17 +1,20 @@
 package main
 
 import (
-	//"couch-go.googlecocde.com/hg"
 	"blinz/server"
-	"fmt"
+	//"fmt"
 )
 
 func main() {
-	server.Settings.Load()
+	if err := server.Settings.Load("/usr/local/etc/LiberatorAdventuresd.conf"); err != nil {
+		//fmt.Println(err.String())
+		return
+	}
 	mainChan := make(chan string)
 	webChan := server.NewChannelLine("Web", mainChan)
-	RunWebServer(webChan)
+	go RunWebServer(webChan)
 	for {
-		fmt.Println(<-mainChan)
+		//fmt.Println(<-mainChan)
+		_ = <-mainChan
 	}
 }
