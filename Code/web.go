@@ -12,8 +12,24 @@ import (
 )
 
 var out *server.ChannelLine
-var TopBar string
-var postDiv string
+
+func TopBar() string {
+	bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + "topbar.wgt")
+	if err != nil {
+		return "TopBar not found."
+	}
+	retval := string(bytes)
+	retval = strings.Replace(retval, "{{WebHome}}", server.Settings.WebHome(), -1)
+	return retval
+}
+
+func postDiv() string {
+	bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + "postdiv.wgt")
+	if err != nil {
+		return "<div><h3>{{Title}}</h3><br>{{Content}}</div>"
+	}
+	return string(bytes)
+}
 
 type BlogData struct {
 	PostCount int
@@ -24,33 +40,10 @@ type Post struct {
 }
 
 func (me *Post) HTML() string {
-	retval := postDiv
+	retval := postDiv()
 	retval = strings.Replace(retval, "{{Title}}", me.Title, -1)
 	retval = strings.Replace(retval, "{{Content}}", me.Content, -1)
 	return retval
-}
-
-func load() {
-	{
-		bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + "topbar.html")
-		if err == nil {
-			retval := string(bytes)
-			retval = strings.Replace(retval, "{{WebHome}}", server.Settings.WebHome(), -1)
-			TopBar = retval
-		} else {
-			out.Put(err.String())
-		}
-	}
-	{
-		bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + "post.wgt")
-		if err == nil {
-			retval := string(bytes)
-			retval = strings.Replace(retval, "{{WebHome}}", server.Settings.WebHome(), -1)
-			postDiv = retval
-		} else {
-			out.Put(err.String())
-		}
-	}
 }
 
 func home(ctx *web.Context, val string) string {
@@ -66,16 +59,16 @@ func home(ctx *web.Context, val string) string {
 		}
 		blogData := new(BlogData)
 		user := ctx.Params["user"]
-		_, err = db.Retrieve("BlogData_" + user, blogData)
+		_, err = db.Retrieve("BlogData_"+user, blogData)
 		if err != nil {
-			retval := strings.Replace(string(bytes), "{{Posts}}", "No posts from " + user + ".", -1)
-			retval = strings.Replace(retval, "{{TopBar}}", TopBar, -1)
+			retval := strings.Replace(string(bytes), "{{Posts}}", "No posts from "+user+".", -1)
+			retval = strings.Replace(retval, "{{TopBar}}", TopBar(), -1)
 			return retval
 		}
 		post := new(Post)
 		posts := ""
 		for i := blogData.PostCount; i > 0; i-- {
-			_, err := db.Retrieve("Post_" + strconv.Itoa(i) + "_" + user, post)
+			_, err := db.Retrieve("Post_"+strconv.Itoa(i)+"_"+user, post)
 			if err != nil {
 				post.Title = "Error: Post not found."
 				post.Content = "Error: Post not found."
@@ -85,10 +78,10 @@ func home(ctx *web.Context, val string) string {
 			posts += post.HTML() + "<br>"
 		}
 		retval := strings.Replace(string(bytes), "{{Posts}}", posts, -1)
-		retval = strings.Replace(retval, "{{TopBar}}", TopBar, -1)
+		retval = strings.Replace(retval, "{{TopBar}}", TopBar(), -1)
 		return retval
 	default:
-		bytes, err := ioutil.ReadFile(val)
+		bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + val)
 		if err != nil {
 			break
 		}
@@ -105,7 +98,6 @@ func (me dummy) Write(p []byte) (n int, err os.Error) {
 
 func RunWebServer(line *server.ChannelLine) {
 	out = line
-	load()
 	var s web.Server
 	s.Logger = log.New(new(dummy), "", 0)
 	s.Get("/liberator-blog/(.*)", home)
