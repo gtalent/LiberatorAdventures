@@ -1,0 +1,23 @@
+body {
+	background-color:grey
+}
+
+a:link {
+	text-decoration:none;
+	color:navy;
+}
+
+a:visited {
+	text-decoration:none;
+	color:navy;
+}
+
+a:hover {
+	text-decoration:none;
+	color:green;
+}
+
+a:active {
+	text-decoration:none;
+	color:green;
+}

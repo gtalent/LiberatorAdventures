@@ -87,6 +87,12 @@ func home(ctx *web.Context, val string) string {
 		retval := strings.Replace(string(bytes), "{{Posts}}", posts, -1)
 		retval = strings.Replace(retval, "{{TopBar}}", TopBar, -1)
 		return retval
+	default:
+		bytes, err := ioutil.ReadFile(val)
+		if err != nil {
+			break
+		}
+		return string(bytes)
 	}
 	return "Page not found, perhaps it was taken by Tusken Raiders?"
 }
