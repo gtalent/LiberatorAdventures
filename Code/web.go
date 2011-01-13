@@ -47,8 +47,19 @@ func (me *Post) HTML() string {
 	return retval
 }
 
+type Users struct {
+	users []string
+}
+
 func home(ctx *web.Context, val string) string {
 	switch val {
+	case "", "index.html", "index.htm":
+		data, err := ioutil.ReadFile("index.html")
+		if err != nil {
+			break
+		}
+		retval := strings.Replace(string(data), "{{TopBar}}", TopBar(), -1)
+		return retval
 	case "posts", "posts/":
 		db, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
 		if err != nil {
@@ -64,6 +75,7 @@ func home(ctx *web.Context, val string) string {
 		if err != nil {
 			retval := strings.Replace(string(bytes), "{{Posts}}", "No posts from "+user+".", -1)
 			retval = strings.Replace(retval, "{{TopBar}}", TopBar(), -1)
+			retval = strings.Replace(retval, "{{User}}", user, -1)
 			return retval
 		}
 		post := new(Post)
