@@ -47,19 +47,35 @@ func (me *Post) HTML() string {
 	return retval
 }
 
+func LoadFile(path string) (string, os.Error) {
+	data, err := ioutil.ReadFile(server.Settings.WebRoot() + path)
+	return string(data), err
+}
+
 type Users struct {
-	users []string
+	Users []string
 }
 
 func home(ctx *web.Context, val string) string {
 	switch val {
 	case "", "index.html", "index.htm":
-		data, err := ioutil.ReadFile("index.html")
+		db, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
+		data, err := LoadFile("index.html")
 		if err != nil {
 			break
 		}
-		retval := strings.Replace(string(data), "{{TopBar}}", TopBar(), -1)
-		return retval
+		users := new(Users)
+		list := "<ul>\n"
+		if _, err = db.Retrieve("UserList", users); err == nil {
+			size := len(users.Users)
+			for i := 0; i < size; i++ {
+				list += "<il><a href=\"" + server.Settings.WebHome() + "posts?user=" + users.Users[i] + "\">" + users.Users[i] + "</a></il>"
+			}
+		}
+		list += "</ul>"
+		data = strings.Replace(data, "{{TopBar}}", TopBar(), -1)
+		data = strings.Replace(data, "{{UserList}}", list, -1)
+		return data
 	case "posts", "posts/":
 		db, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
 		if err != nil {
