@@ -108,6 +108,7 @@ func home(ctx *web.Context, val string) string {
 		}
 		retval := strings.Replace(string(bytes), "{{Posts}}", posts, -1)
 		retval = strings.Replace(retval, "{{TopBar}}", TopBar(), -1)
+		retval = strings.Replace(retval, "{{User}}", user, -1)
 		return retval
 	default:
 		bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + val)
@@ -129,6 +130,6 @@ func RunWebServer(line *server.ChannelLine) {
 	out = line
 	var s web.Server
 	s.Logger = log.New(new(dummy), "", 0)
-	s.Get("/liberator-blog/(.*)", home)
+	s.Get("/Liberator/(.*)", home)
 	s.Run("0.0.0.0:" + strconv.Uitoa(server.Settings.WebPort()))
 }

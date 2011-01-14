@@ -1,4 +1,5 @@
 <div style="background-color:white">
-	<h3><a href="{{WebHome}}">Liberator Adventures</a></h3>
+	<div><h3><a href="{{WebHome}}">Liberator Adventures</a></h3></div>
+	<div><h6>A blog about adventures on SWGEmu's Liberator server.</h6></div>
 </div>
 <hr>

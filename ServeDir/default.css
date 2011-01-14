@@ -2,6 +2,10 @@ body {
 	background-color:white
 }
 
+strong {
+	color:navy;
+}
+
 a:link {
 	text-decoration:none;
 	color:navy;

@@ -1,4 +1,4 @@
 <div style="background:lightgray">
-	<h3>{{Title}}</h3> by {{Author}}
+	<strong>{{Title}}</strong> - by {{Author}}<br>
 	{{Content}}
 </div>
