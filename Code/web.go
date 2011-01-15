@@ -100,23 +100,6 @@ func LoadFile(path string) (string, os.Error) {
 
 func home(ctx *web.Context, val string) string {
 	switch val {
-	case "Login":
-		username := ctx.Params["Username"]
-		password := ctx.Params["Password"]
-		user := new(User)
-		if db, err := getDB(); err == nil {
-			if _, err = db.Retrieve("User_"+username, user); err == nil {
-				if password == user.Password {
-					num := rand.Int63()
-					key := username + "_" + strconv.Itoa64(num)
-					cookies[key] = username
-					ctx.SetCookie("UserKey", key, 6000000)
-					return messagePage("You're logged in.", ctx)
-				}
-				return messagePage("Invalid username and password combination.", ctx)
-			}
-		}
-		break
 	case "Logout":
 		value, ok := readUserKey(ctx)
 		if ok {
@@ -193,6 +176,23 @@ func home(ctx *web.Context, val string) string {
 
 func post(ctx *web.Context, val string) string {
 	switch val {
+	case "Login":
+		username := ctx.Params["Username"]
+		password := ctx.Params["Password"]
+		user := new(User)
+		if db, err := getDB(); err == nil {
+			if _, err = db.Retrieve("User_"+username, user); err == nil {
+				if password == user.Password {
+					num := rand.Int63()
+					key := username + "_" + strconv.Itoa64(num)
+					cookies[key] = username
+					ctx.SetCookie("UserKey", key, 6000000)
+					return messagePage("You're logged in.", ctx)
+				}
+				return messagePage("Invalid username and password combination.", ctx)
+			}
+		}
+		break
 	case "CreateUser":
 		username := ctx.Params["Username"]
 		email := ctx.Params["Email"]
