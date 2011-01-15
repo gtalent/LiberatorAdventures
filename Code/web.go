@@ -52,8 +52,12 @@ func LoadFile(path string) (string, os.Error) {
 	return string(data), err
 }
 
+type User struct {
+	Username, Password string
+}
+
 type Users struct {
-	Users []string
+	Users []User
 }
 
 func home(ctx *web.Context, val string) string {
@@ -69,7 +73,8 @@ func home(ctx *web.Context, val string) string {
 		if _, err = db.Retrieve("UserList", users); err == nil {
 			size := len(users.Users)
 			for i := 0; i < size; i++ {
-				list += "<il><a href=\"" + server.Settings.WebHome() + "posts?user=" + users.Users[i] + "\">" + users.Users[i] + "</a></il>"
+				user := users.Users[i]
+				list += "<il><a href=\"" + server.Settings.WebHome() + "posts?user=" + user.Username + "\">" + user.Username + "</a></il>"
 			}
 		}
 		list += "</ul>"

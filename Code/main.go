@@ -6,8 +6,8 @@ import (
 )
 
 func main() {
-	if err := server.Settings.Load("/usr/local/etc/LiberatorAdventuresd.conf"); err != nil {
-	//if err := server.Settings.Load("blinzd.conf"); err != nil {
+	//if err := server.Settings.Load("/usr/local/etc/LiberatorAdventuresd.conf"); err != nil {
+	if err := server.Settings.Load("blinzd.conf"); err != nil {
 		//fmt.Println(err.String())
 		return
 	}
