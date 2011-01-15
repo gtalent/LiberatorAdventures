@@ -3,6 +3,7 @@ include $(GOROOT)/src/Make.inc
 TARG=main
 GOFILES=\
 	web.go\
+	data.go\
 	main.go\
 
 include $(GOROOT)/src/Make.pkg

@@ -1,0 +1,28 @@
+<html>
+	<head>
+		<title>Liberator Adventures</title>
+		<link rel="stylesheet" type="text/css" href="default.css" />
+	</head>
+
+	<body>
+		{{TopBar}}
+		<form name="UserData" action="CreateUser" method="post">
+			<strong style="color:red">Warning, this form does NOT encrypt its input, take care not to send a valuable password.</strong>
+			<table>
+				<tr>
+					<td>Username:</td> <td><input type="text" name="Username" /></td>
+				</tr>
+				<tr>
+					<td>Email:</td> <td><input type="text" name="Email" /></td>
+				</tr>
+				<tr>
+					<td>Password:</td><td><input type="password" name="Password" /></td>
+				</tr>
+				<tr>
+					<td>Re-type Password:</td><td><input type="password" name="Password2" /></td>
+				</tr>
+			</table>
+			<input type="submit" />
+		</form>
+	</body>
+</html>
