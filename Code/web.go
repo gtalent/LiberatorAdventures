@@ -201,6 +201,9 @@ func post(ctx *web.Context, val string) string {
 		if password != password2 {
 			return messagePage("Passwords do not match.", ctx)
 		}
+		if strings.Contains(username, ";") || strings.Contains(username, "\\") || strings.Contains(username, " ") || strings.Contains(username, "=") {
+			return messagePage("Usernames may not contian the following characters: \" \", \"=\", \"\\\", or \";\".", ctx)
+		}
 		user := new(User)
 		user.Username = username
 		user.ID = "User_" + username
