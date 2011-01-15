@@ -5,16 +5,58 @@ import (
 	"strings"
 	"strconv"
 	"log"
+	"rand"
 	"os"
 	"web"
 	"couch-go.googlecode.com/hg"
 	"blinz/server"
 )
 
+var cookies map[string]string = make(map[string]string)
+const cookie string = "LiberatorAdventures"
+
 var fileNotFound string = "File not found, perhaps it was taken by Tusken Raiders?"
 var out *server.ChannelLine
 
-func TopBar(signedin bool) string {
+//Gets the database connection.
+func getDB() (couch.Database, os.Error) {
+	return couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
+}
+
+//Returns the given cookie list as map
+func readCookies(ctx *web.Context) map[string]string {
+	cookies := ctx.Headers["Cookie"]
+	list := strings.Split(cookies, "; ", -1)
+	size := len(list)
+	m := make(map[string]string)
+	for i := 0; i < size; i++ {
+		pair := strings.Split(list[i], "=", -1)
+		m[pair[0]] = pair[1]
+	}
+	return m
+}
+
+//Reads the requested cookie from the given cookie list.
+//Returns the desired cookie value if present, and an ok boolean value to indicate success or failure
+func readCookie(cookie string, ctx *web.Context) (string, bool) {
+	cookies := ctx.Headers["Cookie"]
+	list := strings.Split(cookies, "; ", -1)
+	size := len(list)
+	for i := 0; i < size; i++ {
+		pair := strings.Split(list[i], "=", -1)
+		if pair[0] == cookie {
+			return pair[1], true
+		}
+	}
+	return "", false
+}
+
+func readUserKey(ctx *web.Context) (string, bool) {
+	return readCookie("UserKey", ctx)
+}
+
+func TopBar(ctx *web.Context) string {
+	_, signedin := readUserKey(ctx)
 	retval, err := LoadFile("TopBar.wgt")
 	if err != nil {
 		return "TopBar not found."
@@ -42,21 +84,13 @@ func postDiv() string {
 	return string(bytes)
 }
 
-func messagePage(message string) string {
+func messagePage(message string, ctx *web.Context) string {
 	if file, err := LoadFile("message.html"); err == nil {
-		file = strings.Replace(file, "{{TopBar}}", TopBar(false), -1)
+		file = strings.Replace(file, "{{TopBar}}", TopBar(ctx), -1)
 		file = strings.Replace(file, "{{Message}}", message, -1)
 		return file
 	}
 	return fileNotFound
-}
-
-func (me *Post) HTML() string {
-	retval := postDiv()
-	retval = strings.Replace(retval, "{{Title}}", me.Title, -1)
-	retval = strings.Replace(retval, "{{Author}}", me.Author, -1)
-	retval = strings.Replace(retval, "{{Content}}", me.Content, -1)
-	return retval
 }
 
 func LoadFile(path string) (string, os.Error) {
@@ -66,8 +100,32 @@ func LoadFile(path string) (string, os.Error) {
 
 func home(ctx *web.Context, val string) string {
 	switch val {
+	case "Login":
+		username := ctx.Params["Username"]
+		password := ctx.Params["Password"]
+		user := new(User)
+		if db, err := getDB(); err == nil {
+			if _, err = db.Retrieve("User_"+username, user); err == nil {
+				if password == user.Password {
+					num := rand.Int63()
+					key := username + "_" + strconv.Itoa64(num)
+					cookies[key] = username
+					ctx.SetCookie("UserKey", key, 6000000)
+					return messagePage("You're logged in.", ctx)
+				}
+				return messagePage("Invalid username and password combination.", ctx)
+			}
+		}
+		break
+	case "Logout":
+		value, ok := readUserKey(ctx)
+		if ok {
+			ctx.SetCookie("UserKey", value, -6000000)
+		}
+		return messagePage("You're signed out.", ctx)
+		break
 	case "", "index.html", "index.htm":
-		db, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
+		db, err := getDB()
 		data, err := LoadFile("index.html")
 		if err != nil {
 			break
@@ -82,7 +140,7 @@ func home(ctx *web.Context, val string) string {
 			}
 		}
 		list += "</ul>"
-		data = strings.Replace(data, "{{TopBar}}", TopBar(false), -1)
+		data = strings.Replace(data, "{{TopBar}}", TopBar(ctx), -1)
 		data = strings.Replace(data, "{{UserList}}", list, -1)
 		return data
 	case "posts", "posts/":
@@ -99,7 +157,7 @@ func home(ctx *web.Context, val string) string {
 		_, err = db.Retrieve("BlogData_"+user, blogData)
 		if err != nil {
 			retval := strings.Replace(string(bytes), "{{Posts}}", "No posts from "+user+".", -1)
-			retval = strings.Replace(retval, "{{TopBar}}", TopBar(false), -1)
+			retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
 			retval = strings.Replace(retval, "{{User}}", user, -1)
 			return retval
 		}
@@ -116,7 +174,7 @@ func home(ctx *web.Context, val string) string {
 			posts += post.HTML() + "<br>"
 		}
 		retval := strings.Replace(string(bytes), "{{Posts}}", posts, -1)
-		retval = strings.Replace(retval, "{{TopBar}}", TopBar(false), -1)
+		retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
 		retval = strings.Replace(retval, "{{User.Name}}", user, -1)
 		return retval
 
@@ -126,11 +184,11 @@ func home(ctx *web.Context, val string) string {
 			break
 		}
 		if strings.HasSuffix(val, ".wgt") || strings.HasSuffix(val, ".html") {
-			retval = strings.Replace(retval, "{{TopBar}}", TopBar(false), -1)
+			retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
 		}
 		return retval
 	}
-	return "Page not found, perhaps it was taken by Tusken Raiders?"
+	return fileNotFound
 }
 
 func post(ctx *web.Context, val string) string {
@@ -141,7 +199,7 @@ func post(ctx *web.Context, val string) string {
 		password := ctx.Params["Password"]
 		password2 := ctx.Params["Password2"]
 		if password != password2 {
-			return messagePage("Passwords do not match.")
+			return messagePage("Passwords do not match.", ctx)
 		}
 		user := new(User)
 		user.Username = username
@@ -152,30 +210,30 @@ func post(ctx *web.Context, val string) string {
 		if err != nil {
 			break
 		}
-		_, rev, err := db.Insert(user)
+		_, user_rev, err := db.Insert(user)
 		if err != nil {
-			return messagePage("Username already taken.")
+			return messagePage("Username already taken.", ctx)
 		}
 		users := new(UserList)
 		_, err = db.Retrieve("UserList", users)
-		//if can't add the user to the user list, delete the user
+		//if you can't add the user to the user list, delete the user
 		if err != nil {
-			db.Delete(user.ID, rev)
-			return messagePage("Error")
+			db.Delete(user.ID, user_rev)
+			return messagePage("Error", ctx)
 		}
 
 		users.Users = append(users.Users, user.Username)
-		rev, err = db.Edit(users)
+		_, err = db.Edit(users)
 
-		//if can't add the user to the user list, delete the user
+		//if you can't add the user to the user list, delete the user
 		if err != nil {
-			db.Delete(user.ID, rev)
-			return messagePage(err.String())
+			db.Delete(user.ID, user_rev)
+			return messagePage("Error", ctx)
 		}
 
 		//return news of success
 		if file, err := LoadFile("userCreated.html"); err == nil {
-			file = strings.Replace(file, "{{TopBar}}", TopBar(false), -1)
+			file = strings.Replace(file, "{{TopBar}}", TopBar(ctx), -1)
 			file = strings.Replace(file, "{{User.Name}}", username, -1)
 			return file
 		} else {
