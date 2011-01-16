@@ -218,7 +218,7 @@ func post(ctx *web.Context, val string) string {
 		user.ID = "User_" + username
 		user.Email = email
 		user.Password = password
-		db, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
+		db, err := getDB()
 		if err != nil {
 			break
 		}
@@ -226,6 +226,10 @@ func post(ctx *web.Context, val string) string {
 		if err != nil {
 			return messagePage("Username already taken.", ctx)
 		}
+		//create a BlogData document for this user
+		blogData := new(BlogData)
+		blogData.ID = "BlogData_" + username
+		db.Insert(blogData)
 		users := new(UserList)
 		_, err = db.Retrieve("UserList", users)
 		//if you can't add the user to the user list, delete the user
