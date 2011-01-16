@@ -203,6 +203,9 @@ func post(ctx *web.Context, val string) string {
 		if password != password2 {
 			return messagePage("Passwords do not match.", ctx)
 		}
+		if len(password) < 6 {
+			return messagePage("You're password must be at least 6 characters long.", ctx)
+		}
 		if strings.Contains(username, ";") || strings.Contains(username, "\\") || strings.Contains(username, " ") || strings.Contains(username, "=") {
 			return messagePage("Usernames may not contian the following characters: \" \", \"=\", \"\\\", or \";\".", ctx)
 		}
