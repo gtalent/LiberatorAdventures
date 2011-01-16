@@ -7,7 +7,8 @@
 	<body>
 		{{TopBar}}
 		{{Message}}
-		<form name="PostData" action="EditPost?post={{PostID}}" method="post">
+		<form name="PostData" action="EditPost.html" method="post">
+			<input type="hidden" name="PostID" value="{{PostID}}" />
 			Title: <br>
 			<input type="text" name="Title" value="{{Title}}" /> <br>
 			Author: <br>

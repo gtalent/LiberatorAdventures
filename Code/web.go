@@ -13,6 +13,7 @@ import (
 )
 
 var cookies map[string]string = make(map[string]string)
+
 const cookie string = "LiberatorAdventures"
 
 var fileNotFound string = "File not found, perhaps it was taken by Tusken Raiders?"
@@ -56,6 +57,14 @@ func readCookie(cookie string, ctx *web.Context) (string, bool) {
 
 func readUserKey(ctx *web.Context) (string, bool) {
 	return readCookie("UserKey", ctx)
+}
+
+func signedIn(ctx *web.Context) bool {
+	if key, ok := readUserKey(ctx); ok {
+		_, ok = cookies[key]
+		return ok
+	}
+	return false
 }
 
 func TopBar(ctx *web.Context) string {
@@ -141,7 +150,10 @@ func home(ctx *web.Context, val string) string {
 		data = strings.Replace(data, "{{TopBar}}", TopBar(ctx), -1)
 		data = strings.Replace(data, "{{UserList}}", list, -1)
 		return data
-	default:
+	case "signin.html":
+		if signedIn(ctx) {
+			return messagePage("You're already signed in.", ctx)
+		}
 		retval, err := LoadFile(val)
 		if err != nil {
 			break
@@ -150,13 +162,23 @@ func home(ctx *web.Context, val string) string {
 			retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
 		}
 		return retval
+
+	default:
+		retval, err := LoadFile(val)
+		if err != nil {
+			break
+		}
+		retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
+		return retval
 	}
 	return fileNotFound
 }
 
 func post(ctx *web.Context, val string) string {
 	switch val {
-	case "Login":
+	case "EditPost.html":
+		return postEditPost(ctx, val)
+	case "signin.html":
 		username := ctx.Params["Username"]
 		password := ctx.Params["Password"]
 		user := new(User)
@@ -167,7 +189,7 @@ func post(ctx *web.Context, val string) string {
 					key := username + "_" + strconv.Itoa64(num)
 					cookies[key] = username
 					ctx.SetCookie("UserKey", key, 6000000)
-					return messagePage("You're logged in.", ctx)
+					return messagePage("You are now signed in.", ctx)
 				}
 				return messagePage("Invalid username and password combination.", ctx)
 			}

@@ -6,27 +6,29 @@ import (
 	"web"
 	"strings"
 	"strconv"
-	"couch-go.googlecode.com/hg"
 )
 
 //The HTTP get method for getting the page for editing posts.
 func getEditPost(ctx *web.Context, val string) string {
-	db, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
+	db, err := getDB()
 	if err != nil {
 		return fileNotFound
 	}
 	post := Post{Title: "", Author: "", Content: "", Owner: ""}
-	postID, ok := ctx.Params["postid"]
+	postID, ok := ctx.Params["PostID"]
+	var newPost bool
 	if ok && postID != "NewPost" {
 		db.Retrieve(postID, post)
 		if userKey, ok := readUserKey(ctx); !(ok && cookies[userKey] == post.Owner) {
 			return messagePage("You do not have permission to edit this post.", ctx)
 		}
+		newPost = false
 	} else {
 		postID = "NewPost"
+		newPost = true
 	}
 	if file, err := LoadFile("EditPost.html"); err == nil {
-		if ok {
+		if newPost {
 			file = strings.Replace(file, "{{Message}}", "<h3>Writing New Post</h3>", 1)
 		} else {
 			file = strings.Replace(file, "{{Message}}", "<h3>Editing Existing Post</h3>", 1)
@@ -43,7 +45,7 @@ func getEditPost(ctx *web.Context, val string) string {
 
 //The HTTP post method for editing posts.
 func postEditPost(ctx *web.Context, val string) string {
-	db, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
+	db, err := getDB()
 	if err != nil {
 		return fileNotFound
 	}
@@ -56,36 +58,36 @@ func postEditPost(ctx *web.Context, val string) string {
 	pleaseSignIn := "You must sign in to post."
 	username := ""
 	//authenticate the user
-	if userkey, ok := readUserKey(ctx); ok {
-		if post.ID != "NewPost" {
-			db.Retrieve(post.ID, post)
-			username = cookies[userkey]
-			if post.Owner != username {
-				return messagePage("You do not have permission to edit this post.", ctx)
-			}
+	if userkey, ok := readUserKey(ctx); !ok { //is the user signed in?
+		return messagePage(pleaseSignIn, ctx)
+	} else if username, ok = cookies[userkey]; !ok {
+		return messagePage(pleaseSignIn, ctx)
+	} else if post.ID != "NewPost" { //if it is not a new post, make sure the user has the right to edit it
+		db.Retrieve(post.ID, post)
+		if ok && post.Owner != username {
+			return messagePage("You do not have permission to edit this post.", ctx)
 		}
-	} else {
-		return pleaseSignIn
 	}
 	//save the post
 	post.Title = ctx.Params["Title"]
 	post.Author = ctx.Params["Author"]
 	post.Content = ctx.Params["Content"]
-	blogData := new(BlogData)
-	db.Retrieve("BlogData_" + username, blogData)
-	blogData.PostCount++
-	post.ID = "Post_" + strconv.Itoa(blogData.PostCount) + "_" + username
+	post.Owner = username
 	if newPost {
+		blogData := new(BlogData)
+		db.Retrieve("BlogData_"+username, blogData)
+		blogData.PostCount++
+		db.Edit(blogData)
+		post.ID = "Post_" + strconv.Itoa(blogData.PostCount) + "_" + username
 		db.Insert(post)
 	} else {
 		db.Edit(post)
 	}
-	db.Edit(blogData)
 	return messagePage("Post saved.", ctx)
 }
 
 func viewPost(ctx *web.Context, val string) string {
-	db, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
+	db, err := getDB()
 	if err != nil {
 		return fileNotFound
 	}
