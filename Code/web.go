@@ -43,12 +43,9 @@ func readCookie(cookie string, ctx *web.Context) (string, bool) {
 	cookies := ctx.Headers["Cookie"]
 	list := strings.Split(cookies, "; ", -1)
 	size := len(list)
-	println(cookies)
-	println(size)
 	for i := 0; i < size; i++ {
 		pair := strings.Split(list[i], "=", -1)
 		if pair[0] == cookie {
-			println(pair[0], pair[1])
 			return pair[1], true
 		}
 	}
