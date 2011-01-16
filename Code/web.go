@@ -67,6 +67,13 @@ func signedIn(ctx *web.Context) bool {
 	return false
 }
 
+func readUsername(ctx *web.Context) string {
+	if key, ok := readUserKey(ctx); ok {
+		if username, ok := cookies[key]; ok {return username}
+	}
+	return ""
+}
+
 func TopBar(ctx *web.Context) string {
 	_, signedin := readUserKey(ctx)
 	retval, err := LoadFile("TopBar.wgt")

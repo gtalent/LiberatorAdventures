@@ -14,7 +14,7 @@ func getEditPost(ctx *web.Context, val string) string {
 	if err != nil {
 		return fileNotFound
 	}
-	post := Post{Title: "", Author: "", Content: "", Owner: ""}
+	post := new(Post)
 	postID, ok := ctx.Params["PostID"]
 	var newPost bool
 	if ok && postID != "NewPost" {
@@ -114,7 +114,7 @@ func viewPost(ctx *web.Context, val string) string {
 		} else {
 			post.Content = strings.Replace(post.Content, "\n", "<br>", -1)
 		}
-		posts += post.HTML() + "<br>"
+		posts += post.HTML(ctx) + "<br>"
 	}
 	retval := strings.Replace(string(bytes), "{{Posts}}", posts, -1)
 	retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)

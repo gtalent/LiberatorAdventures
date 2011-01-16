@@ -1,6 +1,10 @@
 package main
 
-import "strings"
+import (
+	"strings"
+	"web"
+	"blinz/html"
+)
 
 type User struct {
 	ID                        string "_id"
@@ -26,11 +30,17 @@ type Post struct {
 	Title, Author, Owner, Date, Content string
 }
 
-func (me *Post) HTML() string {
+func (me *Post) HTML(ctx *web.Context) string {
 	retval := postDiv()
 	retval = strings.Replace(retval, "{{Title}}", me.Title, -1)
 	retval = strings.Replace(retval, "{{Author}}", me.Author, -1)
 	retval = strings.Replace(retval, "{{Content}}", me.Content, -1)
+	if username := readUsername(ctx); me.Owner == username {
+		ownerControls := html.TextLink("Edit", "EditPost.html?PostID=" + me.ID)
+		retval = strings.Replace(retval, "{{OwnerControls}}", ownerControls.String(), -1)
+	} else {
+		retval = strings.Replace(retval, "{{OwnerControls}}", "", -1)
+	}
 	return retval
 }
 
