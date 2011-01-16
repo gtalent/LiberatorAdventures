@@ -42,9 +42,12 @@ func readCookie(cookie string, ctx *web.Context) (string, bool) {
 	cookies := ctx.Headers["Cookie"]
 	list := strings.Split(cookies, "; ", -1)
 	size := len(list)
+	println(cookies)
+	println(size)
 	for i := 0; i < size; i++ {
 		pair := strings.Split(list[i], "=", -1)
 		if pair[0] == cookie {
+			println(pair[0], pair[1])
 			return pair[1], true
 		}
 	}
@@ -61,7 +64,8 @@ func TopBar(ctx *web.Context) string {
 	if err != nil {
 		return "TopBar not found."
 	}
-	sessionManager := "Narf!"
+	sessionManager := ""
+	postManager := ""
 	if !signedin {
 		if file, err := LoadFile("SessionManagerAnon.wgt"); err == nil {
 			sessionManager = file
@@ -70,9 +74,13 @@ func TopBar(ctx *web.Context) string {
 		if file, err := LoadFile("SessionManager.wgt"); err == nil {
 			sessionManager = file
 		}
+		if file, err := LoadFile("PostManagement.wgt"); err == nil {
+			postManager = file
+		}
 	}
 	retval = strings.Replace(retval, "{{WebHome}}", server.Settings.WebHome(), -1)
 	retval = strings.Replace(retval, "{{SessionManager}}", sessionManager, -1)
+	retval = strings.Replace(retval, "{{PostManagement}}", postManager, -1)
 	return retval
 }
 
@@ -100,13 +108,20 @@ func LoadFile(path string) (string, os.Error) {
 
 func home(ctx *web.Context, val string) string {
 	switch val {
+	case "EditPost.html":
+		return getEditPost(ctx, val)
 	case "Logout":
-		value, ok := readUserKey(ctx)
-		if ok {
+		if value, ok := readUserKey(ctx); ok {
 			ctx.SetCookie("UserKey", value, -6000000)
+			cookies[value] = "", false
+		}
+		if username, ok := readCookie("Username", ctx); ok {
+			ctx.SetCookie("Username", username, -6000000)
 		}
 		return messagePage("You're signed out.", ctx)
 		break
+	case "view/", "view":
+		return viewPost(ctx, val)
 	case "", "index.html", "index.htm":
 		db, err := getDB()
 		data, err := LoadFile("index.html")
@@ -119,48 +134,13 @@ func home(ctx *web.Context, val string) string {
 			size := len(users.Users)
 			for i := 0; i < size; i++ {
 				user := users.Users[i]
-				list += "<il><a href=\"" + server.Settings.WebHome() + "posts?user=" + user + "\">" + user + "</a></il><br>"
+				list += "<il><a href=\"" + server.Settings.WebHome() + "view?user=" + user + "\">" + user + "</a></il><br>"
 			}
 		}
 		list += "</ul>"
 		data = strings.Replace(data, "{{TopBar}}", TopBar(ctx), -1)
 		data = strings.Replace(data, "{{UserList}}", list, -1)
 		return data
-	case "posts", "posts/":
-		db, err := couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
-		if err != nil {
-			break
-		}
-		bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + "posts.html")
-		if err != nil {
-			break
-		}
-		blogData := new(BlogData)
-		user := ctx.Params["user"]
-		_, err = db.Retrieve("BlogData_"+user, blogData)
-		if err != nil {
-			retval := strings.Replace(string(bytes), "{{Posts}}", "No posts from "+user+".", -1)
-			retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
-			retval = strings.Replace(retval, "{{User}}", user, -1)
-			return retval
-		}
-		post := new(Post)
-		posts := ""
-		for i := blogData.PostCount; i > 0; i-- {
-			_, err := db.Retrieve("Post_"+strconv.Itoa(i)+"_"+user, post)
-			if err != nil {
-				post.Title = "Error: Post not found."
-				post.Content = "Error: Post not found."
-			} else {
-				post.Content = strings.Replace(post.Content, "\n", "<br>", -1)
-			}
-			posts += post.HTML() + "<br>"
-		}
-		retval := strings.Replace(string(bytes), "{{Posts}}", posts, -1)
-		retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
-		retval = strings.Replace(retval, "{{User.Name}}", user, -1)
-		return retval
-
 	default:
 		retval, err := LoadFile(val)
 		if err != nil {

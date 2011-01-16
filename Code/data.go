@@ -21,7 +21,9 @@ type BlogData struct {
 }
 
 type Post struct {
-	Title, Author, Date, Content string
+	ID string "_id"
+	Rev string "_rev"
+	Title, Author, Owner, Date, Content string
 }
 
 func (me *Post) HTML() string {

@@ -3,6 +3,7 @@ include $(GOROOT)/src/Make.inc
 TARG=main
 GOFILES=\
 	web.go\
+	posts.go\
 	data.go\
 	main.go\
 

@@ -10,7 +10,7 @@
 			</td>
 			<td>
 				<div>
-					{{SessionManager}}
+					{{SessionManager}} - {{PostManagement}}
 				</div>
 			</td>
 		</tr>
