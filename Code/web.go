@@ -229,12 +229,13 @@ func post(ctx *web.Context, val string) string {
 		//create a BlogData document for this user
 		blogData := new(BlogData)
 		blogData.ID = "BlogData_" + username
-		db.Insert(blogData)
+		_, blogData_rev, _ := db.Insert(blogData)
 		users := new(UserList)
 		_, err = db.Retrieve("UserList", users)
 		//if you can't add the user to the user list, delete the user
 		if err != nil {
 			db.Delete(user.ID, user_rev)
+			db.Delete(blogData.ID, blogData_rev)
 			return messagePage("Error", ctx)
 		}
 
