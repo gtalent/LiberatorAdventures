@@ -22,6 +22,7 @@ type BlogData struct {
 	ID        string "_id"
 	Rev       string "_rev"
 	PostCount int
+	Posts	  []string
 }
 
 type Post struct {

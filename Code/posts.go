@@ -74,11 +74,13 @@ func postEditPost(ctx *web.Context, val string) string {
 	post.Content = ctx.Params["Content"]
 	post.Owner = username
 	if newPost {
+		//manage the BlogData
 		blogData := new(BlogData)
 		db.Retrieve("BlogData_"+username, blogData)
 		blogData.PostCount++
-		db.Edit(blogData)
 		post.ID = "Post_" + strconv.Itoa(blogData.PostCount) + "_" + username
+		blogData.Posts = append(blogData.Posts, post.ID)
+		db.Edit(blogData)
 		db.Insert(post)
 	} else {
 		db.Edit(post)
