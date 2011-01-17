@@ -2,20 +2,31 @@ package main
 
 import (
 	"blinz/server"
-	//"fmt"
+	"fmt"
+	"flag"
 )
 
 func main() {
-	//if err := server.Settings.Load("/usr/local/etc/LiberatorAdventuresd.conf"); err != nil {
-	if err := server.Settings.Load("blinzd.conf"); err != nil {
-		//fmt.Println(err.String())
+	settings := flag.String("conf", "blinzd.conf", "The location of the configuration file.")
+	p := flag.Bool("p", false, "Indicates whether or not the program should print output to the terminal.")
+	flag.Parse()
+	if err := server.Settings.Load(*settings); err != nil {
+		if *p {
+			fmt.Println(err.String())
+		}
 		return
 	}
 	mainChan := make(chan string)
 	webChan := server.NewChannelLine("Web", mainChan)
 	go RunWebServer(webChan)
-	for {
-		//fmt.Println(<-mainChan)
-		_ = <-mainChan
+
+	if *p {
+		for {
+			fmt.Println(<-mainChan)
+		}
+	} else {
+		for {
+			_ = <-mainChan
+		}
 	}
 }
