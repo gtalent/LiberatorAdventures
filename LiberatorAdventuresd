@@ -18,16 +18,16 @@
 prog=LiberatorAdventuresd
 lockfile=/var/lock/subsys/LiberatorAdventuresd
 RETVAL=0
-INIFILE=/usr/local/etc/LiberatorAdventuresd.conf
+CONFFILE=/usr/local/etc/LiberatorAdventuresd.conf
 MY_USER=LiberatorAdventures
 MY_GROUP=LiberatorAdventures
 LIBADV_PIDFILE=/var/run/LiberatorAdventures/LiberatorAdventures.pid
-LIBADV_OPTS="-conf $INIFILE"
+LIBADV_OPTS="-conf $CONFFILE"
 pidfile=$LIBADV_PIDFILE
 
 start() {
         echo -n "Starting LiberatorAdventuresd: "
-	start_daemon -u $MY_USER -p $pidfile $prog  $LIBADV_OPTS
+	start_daemon -u $MY_USER -p $pidfile $prog  $LIBADV_OPTS &
 	RETVAL=$?
 	if [ $RETVAL -eq 0 ]; then
 		touch "$lockfile" && success || failure
