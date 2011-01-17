@@ -21,7 +21,7 @@ type UserList struct {
 type BlogData struct {
 	ID        string "_id"
 	Rev       string "_rev"
-	PostCount int
+	PostIndex int "PostCount"
 	Posts	  []string
 }
 

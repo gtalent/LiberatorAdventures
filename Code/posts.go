@@ -77,8 +77,8 @@ func postEditPost(ctx *web.Context, val string) string {
 		//manage the BlogData
 		blogData := new(BlogData)
 		db.Retrieve("BlogData_"+username, blogData)
-		blogData.PostCount++
-		post.ID = "Post_" + strconv.Itoa(blogData.PostCount) + "_" + username
+		blogData.PostIndex++
+		post.ID = "Post_" + strconv.Itoa(blogData.PostIndex) + "_" + username
 		blogData.Posts = append(blogData.Posts, post.ID)
 		db.Edit(blogData)
 		db.Insert(post)
@@ -106,10 +106,10 @@ func viewPost(ctx *web.Context, val string) string {
 		retval = strings.Replace(retval, "{{User}}", user, -1)
 		return retval
 	}
-	post := new(Post)
+	var post Post
 	posts := ""
-	for i := blogData.PostCount; i > 0; i-- {
-		_, err := db.Retrieve("Post_"+strconv.Itoa(i)+"_"+user, post)
+	for i := len(blogData.Posts) - 1; i > -1; i-- {
+		_, err := db.Retrieve(blogData.Posts[i], &post)
 		if err != nil {
 			post.Title = "Error: Post not found."
 			post.Content = "Error: Post not found."
