@@ -2,9 +2,17 @@ package main
 
 import (
 	"strings"
+	"os"
 	"web"
 	"blinz/html"
+	"blinz/server"
+	"couch-go.googlecode.com/hg"
 )
+
+//Gets the database connection.
+func getDB() (couch.Database, os.Error) {
+	return couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", server.Settings.Database())
+}
 
 type User struct {
 	ID                        string "_id"

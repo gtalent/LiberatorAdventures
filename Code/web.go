@@ -8,7 +8,6 @@ import (
 	"rand"
 	"os"
 	"web"
-	"couch-go.googlecode.com/hg"
 	"blinz/server"
 )
 
@@ -18,11 +17,6 @@ const cookie string = "LiberatorAdventures"
 
 var fileNotFound string = "File not found, perhaps it was taken by Tusken Raiders?"
 var out *server.ChannelLine
-
-//Gets the database connection.
-func getDB() (couch.Database, os.Error) {
-	return couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", "liberator_adventures")
-}
 
 //Returns the given cookie list as map
 func readCookies(ctx *web.Context) map[string]string {
