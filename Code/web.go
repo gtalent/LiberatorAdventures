@@ -11,8 +11,6 @@ import (
 	"blinz/server"
 )
 
-var cookies map[string]string = make(map[string]string)
-
 const cookie string = "LiberatorAdventures"
 
 var fileNotFound string = "File not found, perhaps it was taken by Tusken Raiders?"
@@ -52,7 +50,7 @@ func readUserKey(ctx *web.Context) (string, bool) {
 
 func signedIn(ctx *web.Context) bool {
 	if key, ok := readUserKey(ctx); ok {
-		_, ok = cookies[key]
+		_, ok = cookies.UserKeys[key]
 		return ok
 	}
 	return false
@@ -60,7 +58,7 @@ func signedIn(ctx *web.Context) bool {
 
 func readUsername(ctx *web.Context) string {
 	if key, ok := readUserKey(ctx); ok {
-		if username, ok := cookies[key]; ok {return username}
+		if username, ok := cookies.UserKeys[key]; ok {return username}
 	}
 	return ""
 }
@@ -120,7 +118,7 @@ func home(ctx *web.Context, val string) string {
 	case "Logout":
 		if value, ok := readUserKey(ctx); ok {
 			ctx.SetCookie("UserKey", value, -6000000)
-			cookies[value] = "", false
+			cookies.UserKeys[value] = "", false
 		}
 		if username, ok := readCookie("Username", ctx); ok {
 			ctx.SetCookie("Username", username, -6000000)
@@ -185,7 +183,7 @@ func post(ctx *web.Context, val string) string {
 				if password == user.Password {
 					num := rand.Int63()
 					key := username + "_" + strconv.Itoa64(num)
-					cookies[key] = username
+					cookies.UserKeys[key] = username
 					ctx.SetCookie("UserKey", key, 6000000)
 					return messagePage("You are now signed in.", ctx)
 				}

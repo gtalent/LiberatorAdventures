@@ -9,6 +9,8 @@ import (
 	"couch-go.googlecode.com/hg"
 )
 
+var cookies *Cookies = NewCookies()
+
 //Gets the database connection.
 func getDB() (couch.Database, os.Error) {
 	return couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", server.Settings.Database())
@@ -31,6 +33,18 @@ type BlogData struct {
 	Rev       string "_rev"
 	PostIndex int "PostCount"
 	Posts	  []string
+}
+
+type Cookies struct {
+	ID    string "_id"
+	Rev   string "_rev"
+	UserKeys map[string]string
+}
+
+func NewCookies() *Cookies {
+	retval := new(Cookies)
+	retval.UserKeys = make(map[string]string)
+	return retval
 }
 
 type Post struct {

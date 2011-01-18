@@ -19,7 +19,7 @@ func getEditPost(ctx *web.Context, val string) string {
 	var newPost bool
 	if ok && postID != "NewPost" {
 		db.Retrieve(postID, post)
-		if userKey, ok := readUserKey(ctx); !(ok && cookies[userKey] == post.Owner) {
+		if userKey, ok := readUserKey(ctx); !(ok && cookies.UserKeys[userKey] == post.Owner) {
 			return messagePage("You do not have permission to edit this post.", ctx)
 		}
 		newPost = false
@@ -60,7 +60,7 @@ func postEditPost(ctx *web.Context, val string) string {
 	//authenticate the user
 	if userkey, ok := readUserKey(ctx); !ok { //is the user signed in?
 		return messagePage(pleaseSignIn, ctx)
-	} else if username, ok = cookies[userkey]; !ok {
+	} else if username, ok = cookies.UserKeys[userkey]; !ok {
 		return messagePage(pleaseSignIn, ctx)
 	} else if post.ID != "NewPost" { //if it is not a new post, make sure the user has the right to edit it
 		db.Retrieve(post.ID, post)
