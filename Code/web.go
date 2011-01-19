@@ -58,7 +58,9 @@ func signedIn(ctx *web.Context) bool {
 
 func readUsername(ctx *web.Context) string {
 	if key, ok := readUserKey(ctx); ok {
-		if username, ok := cookies.UserKeys[key]; ok {return username}
+		if username, ok := cookies.UserKeys[key]; ok {
+			return username
+		}
 	}
 	return ""
 }
@@ -113,8 +115,12 @@ func LoadFile(path string) (string, os.Error) {
 //Load the template file and fills in the body with the contents of the file at the given path.
 func LoadTemplate(subTitle, bodyPath string, ctx *web.Context) (string, os.Error) {
 	data, err := LoadFile("template.html")
-	if err != nil {return fileNotFound, err}
-	if len(subTitle) != 0 {subTitle = " - " + subTitle}
+	if err != nil {
+		return fileNotFound, err
+	}
+	if len(subTitle) != 0 {
+		subTitle = " - " + subTitle
+	}
 	body, err := LoadFile(bodyPath)
 	data = strings.Replace(data, "{{SubTitle}}", subTitle, -1)
 	data = strings.Replace(data, "{{TopBar}}", TopBar(ctx), -1)
@@ -142,10 +148,10 @@ func home(ctx *web.Context, val string) string {
 		return viewPost(ctx, val)
 	case "", "index.html", "index.htm":
 		db, err := getDB()
-		data, err := LoadFile("index.html")
+		data, err := LoadTemplate("", "index.html", ctx)
 		if err != nil {
 			break
-			}
+		}
 		users := new(UserList)
 		list := "<ul>\n"
 		if _, err = db.Retrieve("UserList", users); err == nil {
@@ -156,7 +162,6 @@ func home(ctx *web.Context, val string) string {
 			}
 		}
 		list += "</ul>"
-		data = strings.Replace(data, "{{TopBar}}", TopBar(ctx), -1)
 		data = strings.Replace(data, "{{UserList}}", list, -1)
 		return data
 	case "signin.html":
@@ -170,11 +175,19 @@ func home(ctx *web.Context, val string) string {
 		return retval
 
 	default:
+		if strings.HasSuffix(val, ".html") {
+			retval, err := LoadTemplate("", val, ctx)
+			if err != nil {
+				break
+			}
+			return retval
+		}
 		retval, err := LoadFile(val)
 		if err != nil {
 			break
 		}
-		if strings.HasSuffix(val, ".wgt") || strings.HasSuffix(val, ".html") {
+		if strings.HasSuffix(val, ".html") {
+		} else if strings.HasSuffix(val, ".wgt") {
 			retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
 		}
 		return retval
@@ -255,8 +268,7 @@ func post(ctx *web.Context, val string) string {
 		}
 
 		//return news of success
-		if file, err := LoadFile("userCreated.html"); err == nil {
-			file = strings.Replace(file, "{{TopBar}}", TopBar(ctx), -1)
+		if file, err := LoadTemplate("", "userCreated.html", ctx); err == nil {
 			file = strings.Replace(file, "{{User.Name}}", username, -1)
 			return file
 		} else {

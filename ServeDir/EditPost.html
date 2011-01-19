@@ -1,21 +1,12 @@
-<html>
-	<head>
-		<title>Liberator Adventures - Edit Post</title>
-		<link rel="stylesheet" type="text/css" href="default.css" />
-	</head>
+{{Message}}
+<form name="PostData" action="EditPost.html" method="post">
+	<input type="hidden" name="PostID" value="{{PostID}}" />
+	Title: <br>
+	<input type="text" name="Title" value="{{Title}}" /> <br>
+	Author: <br>
+	<input type="text" name="Author" value="{{Author}}"/> <br>
+	Content: <br>
+	<textarea name="Content" cols=100 rows=20>{{Content}}</textarea> <br>
+	<input type="submit" value="Save" />
+</form>
 
-	<body>
-		{{TopBar}}
-		{{Message}}
-		<form name="PostData" action="EditPost.html" method="post">
-			<input type="hidden" name="PostID" value="{{PostID}}" />
-			Title: <br>
-			<input type="text" name="Title" value="{{Title}}" /> <br>
-			Author: <br>
-			<input type="text" name="Author" value="{{Author}}"/> <br>
-			Content: <br>
-			<textarea name="Content" cols=100 rows=20>{{Content}}</textarea> <br>
-			<input type="submit" value="Save" />
-		</form>
-	</body>
-</html>

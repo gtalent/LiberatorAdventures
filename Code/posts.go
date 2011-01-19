@@ -25,14 +25,13 @@ func getEditPost(ctx *web.Context, val string) string {
 		postID = "NewPost"
 		newPost = true
 	}
-	if file, err := LoadFile("EditPost.html"); err == nil {
+	if file, err := LoadTemplate("", "EditPost.html", ctx); err == nil {
 		if newPost {
 			file = strings.Replace(file, "{{Message}}", "<h3>Writing New Post</h3>", 1)
 		} else {
 			file = strings.Replace(file, "{{Message}}", "<h3>Editing Existing Post</h3>", 1)
 		}
 		file = strings.Replace(file, "{{PostID}}", postID, 1)
-		file = strings.Replace(file, "{{TopBar}}", TopBar(ctx), 1)
 		file = strings.Replace(file, "{{Title}}", post.Title, 1)
 		file = strings.Replace(file, "{{Author}}", post.Author, 1)
 		file = strings.Replace(file, "{{Content}}", post.Content, 1)
