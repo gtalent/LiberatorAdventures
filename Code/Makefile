@@ -4,6 +4,7 @@ TARG=main
 GOFILES=\
 	web.go\
 	posts.go\
+	account.go\
 	data.go\
 	main.go\
 

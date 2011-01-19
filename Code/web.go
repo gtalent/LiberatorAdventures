@@ -98,8 +98,7 @@ func postDiv() string {
 }
 
 func messagePage(message string, ctx *web.Context) string {
-	if file, err := LoadFile("message.html"); err == nil {
-		file = strings.Replace(file, "{{TopBar}}", TopBar(ctx), -1)
+	if file, err := LoadTemplate("", "message.html", ctx); err == nil {
 		file = strings.Replace(file, "{{Message}}", message, -1)
 		return file
 	}
@@ -111,10 +110,24 @@ func LoadFile(path string) (string, os.Error) {
 	return string(data), err
 }
 
+//Load the template file and fills in the body with the contents of the file at the given path.
+func LoadTemplate(subTitle, bodyPath string, ctx *web.Context) (string, os.Error) {
+	data, err := LoadFile("template.html")
+	if err != nil {return fileNotFound, err}
+	if len(subTitle) != 0 {subTitle = " - " + subTitle}
+	body, err := LoadFile(bodyPath)
+	data = strings.Replace(data, "{{SubTitle}}", subTitle, -1)
+	data = strings.Replace(data, "{{TopBar}}", TopBar(ctx), -1)
+	data = strings.Replace(data, "{{Body}}", body, -1)
+	return data, err
+}
+
 func home(ctx *web.Context, val string) string {
 	switch val {
 	case "EditPost.html":
 		return getEditPost(ctx, val)
+	case "Account.html":
+		return accountManagementGet(ctx, val)
 	case "Logout":
 		if value, ok := readUserKey(ctx); ok {
 			ctx.SetCookie("UserKey", value, -6000000)
@@ -132,14 +145,14 @@ func home(ctx *web.Context, val string) string {
 		data, err := LoadFile("index.html")
 		if err != nil {
 			break
-		}
+			}
 		users := new(UserList)
 		list := "<ul>\n"
 		if _, err = db.Retrieve("UserList", users); err == nil {
 			size := len(users.Users)
 			for i := 0; i < size; i++ {
 				user := users.Users[i]
-				list += "<il><a href=\"" + server.Settings.WebHome() + "view?user=" + user + "\">" + user + "</a></il><br>"
+				list += "\t<il><a href=\"" + "view?user=" + user + "\">" + user + "</a></il><br>\n"
 			}
 		}
 		list += "</ul>"
@@ -150,12 +163,9 @@ func home(ctx *web.Context, val string) string {
 		if signedIn(ctx) {
 			return messagePage("You're already signed in.", ctx)
 		}
-		retval, err := LoadFile(val)
+		retval, err := LoadTemplate("", val, ctx)
 		if err != nil {
 			break
-		}
-		if strings.HasSuffix(val, ".wgt") || strings.HasSuffix(val, ".html") {
-			retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
 		}
 		return retval
 
@@ -164,7 +174,9 @@ func home(ctx *web.Context, val string) string {
 		if err != nil {
 			break
 		}
-		retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
+		if strings.HasSuffix(val, ".wgt") || strings.HasSuffix(val, ".html") {
+			retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
+		}
 		return retval
 	}
 	return fileNotFound
@@ -174,6 +186,8 @@ func post(ctx *web.Context, val string) string {
 	switch val {
 	case "EditPost.html":
 		return postEditPost(ctx, val)
+	case "Account.html":
+		return accountManagementPost(ctx, val)
 	case "signin.html":
 		username := ctx.Params["Username"]
 		password := ctx.Params["Password"]

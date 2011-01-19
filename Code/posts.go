@@ -1,8 +1,6 @@
 package main
 
 import (
-	"blinz/server"
-	"io/ioutil"
 	"web"
 	"strings"
 	"strconv"
@@ -93,17 +91,15 @@ func viewPost(ctx *web.Context, val string) string {
 	if err != nil {
 		return fileNotFound
 	}
-	bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + "posts.html")
+	user := ctx.Params["user"]
+	retval, err := LoadTemplate(user, "posts.html", ctx)
 	if err != nil {
 		return fileNotFound
 	}
 	blogData := new(BlogData)
-	user := ctx.Params["user"]
 	_, err = db.Retrieve("BlogData_"+user, blogData)
 	if err != nil {
-		retval := strings.Replace(string(bytes), "{{Posts}}", "No posts from "+user+".", -1)
-		retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
-		retval = strings.Replace(retval, "{{User}}", user, -1)
+		retval = strings.Replace(retval, "{{Posts}}", "No posts from "+user+".", -1)
 		return retval
 	}
 	var post Post
@@ -118,9 +114,7 @@ func viewPost(ctx *web.Context, val string) string {
 		}
 		posts += post.HTML(ctx) + "<br>"
 	}
-	retval := strings.Replace(string(bytes), "{{Posts}}", posts, -1)
-	retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
-	retval = strings.Replace(retval, "{{User.Name}}", user, -1)
+	retval = strings.Replace(retval, "{{Posts}}", posts, -1)
 	return retval
 }
 
