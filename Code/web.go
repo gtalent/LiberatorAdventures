@@ -199,8 +199,6 @@ func post(ctx *web.Context, val string) string {
 	switch val {
 	case "EditPost.html":
 		return postEditPost(ctx, val)
-	case "Account.html":
-		return accountManagementPost(ctx, val)
 	case "signin.html":
 		username := ctx.Params["Username"]
 		password := ctx.Params["Password"]
@@ -217,6 +215,9 @@ func post(ctx *web.Context, val string) string {
 				return messagePage("Invalid username and password combination.", ctx)
 			}
 		}
+		break
+	case "DeleteAccount.html":
+		return deleteAccountPost(ctx, val)
 		break
 	case "CreateUser":
 		username := ctx.Params["Username"]

@@ -13,10 +13,6 @@ func accountManagementGet(ctx *web.Context, val string) string {
 	return file
 }
 
-func accountManagementPost(ctx *web.Context, val string) string {
-	return ""
-}
-
 func deleteAccountPost(ctx *web.Context, val string) string {
 	if db, err := getDB(); err == nil {
 		username := readUsername(ctx)
