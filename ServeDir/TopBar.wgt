@@ -5,10 +5,6 @@
 				<h3><a href="{{WebHome}}">Liberator Adventures</a></h3>
 			</td>
 			<td>
-				<br>
-				<h6>A blog about adventures on SWGEmu's Liberator server.</h6>
-			</td>
-			<td>
 				<div>
 					{{SessionManager}} 
 				 	{{PostManagement}}

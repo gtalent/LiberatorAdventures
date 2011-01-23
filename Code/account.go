@@ -38,3 +38,4 @@ func deleteAccountPost(ctx *web.Context, val string) string {
 	}
 	return messagePage("Operation failed, try again later.", ctx)
 }
+

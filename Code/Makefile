@@ -5,6 +5,7 @@ GOFILES=\
 	web.go\
 	posts.go\
 	account.go\
+	characters.go\
 	data.go\
 	main.go\
 

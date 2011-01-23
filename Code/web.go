@@ -128,7 +128,7 @@ func LoadTemplate(subTitle, bodyPath string, ctx *web.Context) (string, os.Error
 	return data, err
 }
 
-func home(ctx *web.Context, val string) string {
+func get(ctx *web.Context, val string) string {
 	switch val {
 	case "EditPost.html":
 		return getEditPost(ctx, val)
@@ -197,6 +197,8 @@ func home(ctx *web.Context, val string) string {
 
 func post(ctx *web.Context, val string) string {
 	switch val {
+	case "AddCharacter.html":
+		return addCharacterPost(ctx, val)
 	case "EditPost.html":
 		return postEditPost(ctx, val)
 	case "signin.html":
@@ -284,7 +286,7 @@ func RunWebServer(line *server.ChannelLine) {
 	out = line
 	var s web.Server
 	s.Logger = log.New(new(dummy), "", 0)
-	s.Get("/Liberator/(.*)", home)
+	s.Get("/Liberator/(.*)", get)
 	s.Post("/Liberator/(.*)", post)
 	s.Run("0.0.0.0:" + strconv.Uitoa(server.Settings.WebPort()))
 }

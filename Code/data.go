@@ -86,6 +86,21 @@ func (me *Post) HTML(ctx *web.Context) string {
 	return retval
 }
 
+
+type Character struct {
+	ID                                  string "_id"
+	Rev                                 string "_rev"
+	Type                                string
+	Name, World, Alligiance, Bio, Owner string
+}
+
+func NewCharacter() Character {
+	var data Character
+	data.Type = "Post"
+	return data
+
+}
+
 //Unfinished
 //Checks the username to make sure it does not contain any illegal characters.
 //Returns a message if the name is bad, and a boolean indicating whether or not the name was ok
