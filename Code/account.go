@@ -20,6 +20,9 @@ func deleteAccountPost(ctx *web.Context, val string) string {
 		rev, err := db.Retrieve("User_"+username, &user)
 		if err == nil && ctx.Params["Password"] == user.Password {
 			if err := db.Delete("User_"+username, rev); err == nil {
+				bd := NewBlogData()
+				rev, _ = db.Retrieve("BlogData_"+username, &bd)
+				db.Delete("BlogData_"+username, rev)
 				return messagePage("The deed is done. You're dead to me now.", ctx)
 			}
 		}
