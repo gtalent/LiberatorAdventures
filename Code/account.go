@@ -20,9 +20,18 @@ func deleteAccountPost(ctx *web.Context, val string) string {
 		rev, err := db.Retrieve("User_"+username, &user)
 		if err == nil && ctx.Params["Password"] == user.Password {
 			if err := db.Delete("User_"+username, rev); err == nil {
+				//delete the user's blog data
 				bd := NewBlogData()
 				rev, _ = db.Retrieve("BlogData_"+username, &bd)
 				db.Delete("BlogData_"+username, rev)
+				//sign the user out
+				if value, ok := readUserKey(ctx); ok {
+					ctx.SetCookie("UserKey", value, -6000000)
+					cookies.UserKeys[value] = "", false
+				}
+				if username, ok := readCookie("Username", ctx); ok {
+					ctx.SetCookie("Username", username, -6000000)
+				}
 				return messagePage("The deed is done. You're dead to me now.", ctx)
 			}
 		}
