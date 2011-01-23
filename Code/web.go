@@ -204,9 +204,9 @@ func post(ctx *web.Context, val string) string {
 	case "signin.html":
 		username := ctx.Params["Username"]
 		password := ctx.Params["Password"]
-		user := new(User)
+		user := NewUser()
 		if db, err := getDB(); err == nil {
-			if _, err = db.Retrieve("User_"+username, user); err == nil {
+			if _, err = db.Retrieve("User_"+username, &user); err == nil {
 				if password == user.Password {
 					num := rand.Int63()
 					key := username + "_" + strconv.Itoa64(num)
@@ -232,7 +232,7 @@ func post(ctx *web.Context, val string) string {
 		if strings.Contains(username, ";") || strings.Contains(username, "\\") || strings.Contains(username, " ") || strings.Contains(username, "=") {
 			return messagePage("Usernames may not contian the following characters: \" \", \"=\", \"\\\", or \";\".", ctx)
 		}
-		user := new(User)
+		user := NewUser()
 		user.Username = username
 		user.ID = "User_" + username
 		user.Email = email
@@ -241,14 +241,14 @@ func post(ctx *web.Context, val string) string {
 		if err != nil {
 			break
 		}
-		_, user_rev, err := db.Insert(user)
+		_, user_rev, err := db.Insert(&user)
 		if err != nil {
 			return messagePage("Username already taken.", ctx)
 		}
 		//create a BlogData document for this user
-		blogData := new(BlogData)
+		blogData := NewBlogData()
 		blogData.ID = "BlogData_" + username
-		_, blogData_rev, _ := db.Insert(blogData)
+		_, blogData_rev, _ := db.Insert(&blogData)
 		//if you can't add the user to the user list, delete the user
 		if err != nil {
 			db.Delete(user.ID, user_rev)

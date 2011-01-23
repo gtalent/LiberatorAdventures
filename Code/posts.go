@@ -12,11 +12,11 @@ func getEditPost(ctx *web.Context, val string) string {
 	if err != nil {
 		return fileNotFound
 	}
-	post := new(Post)
+	post := NewPost()
 	postID, ok := ctx.Params["PostID"]
 	var newPost bool
 	if ok && postID != "NewPost" {
-		db.Retrieve(postID, post)
+		db.Retrieve(postID, &post)
 		if userKey, ok := readUserKey(ctx); !(ok && cookies.UserKeys[userKey] == post.Owner) {
 			return messagePage("You do not have permission to edit this post.", ctx)
 		}
@@ -46,11 +46,11 @@ func postEditPost(ctx *web.Context, val string) string {
 	if err != nil {
 		return fileNotFound
 	}
-	post := new(Post)
+	post := NewPost()
 	post.ID = ctx.Params["PostID"]
 	newPost := post.ID == "NewPost"
 	if !newPost {
-		db.Retrieve(post.ID, post)
+		db.Retrieve(post.ID, &post)
 	}
 	pleaseSignIn := "You must sign in to post."
 	username := ""
@@ -60,7 +60,7 @@ func postEditPost(ctx *web.Context, val string) string {
 	} else if username, ok = cookies.UserKeys[userkey]; !ok {
 		return messagePage(pleaseSignIn, ctx)
 	} else if post.ID != "NewPost" { //if it is not a new post, make sure the user has the right to edit it
-		db.Retrieve(post.ID, post)
+		db.Retrieve(post.ID, &post)
 		if ok && post.Owner != username {
 			return messagePage("You do not have permission to edit this post.", ctx)
 		}
@@ -72,15 +72,15 @@ func postEditPost(ctx *web.Context, val string) string {
 	post.Owner = username
 	if newPost {
 		//manage the BlogData
-		blogData := new(BlogData)
-		db.Retrieve("BlogData_"+username, blogData)
+		blogData := NewBlogData()
+		db.Retrieve("BlogData_"+username, &blogData)
 		blogData.PostIndex++
 		post.ID = "Post_" + strconv.Itoa(blogData.PostIndex) + "_" + username
 		blogData.Posts = append(blogData.Posts, post.ID)
-		db.Edit(blogData)
-		db.Insert(post)
+		db.Edit(&blogData)
+		db.Insert(&post)
 	} else {
-		db.Edit(post)
+		db.Edit(&post)
 	}
 	return messagePage("Post saved.", ctx)
 }
@@ -95,13 +95,13 @@ func viewPost(ctx *web.Context, val string) string {
 	if err != nil {
 		return fileNotFound
 	}
-	blogData := new(BlogData)
-	_, err = db.Retrieve("BlogData_"+user, blogData)
+	blogData := NewBlogData()
+	_, err = db.Retrieve("BlogData_"+user, &blogData)
 	if err != nil {
 		retval = strings.Replace(retval, "{{Posts}}", "No posts from "+user+".", -1)
 		return retval
 	}
-	var post Post
+	post := NewPost()
 	posts := ""
 	for i := len(blogData.Posts) - 1; i > -1; i-- {
 		_, err := db.Retrieve(blogData.Posts[i], &post)

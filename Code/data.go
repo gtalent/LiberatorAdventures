@@ -19,19 +19,36 @@ func getDB() (couch.Database, os.Error) {
 type User struct {
 	ID                        string "_id"
 	Rev                       string "_rev"
+	Type                      string
 	Username, Email, Password string
+}
+
+//Returns a new User object by value.
+func NewUser() User {
+	var data User
+	data.Type = "User"
+	return data
 }
 
 type BlogData struct {
 	ID        string "_id"
 	Rev       string "_rev"
+	Type      string
 	PostIndex int "PostCount"
-	Posts	  []string
+	Posts     []string
+}
+
+//Returns a new BlogData object by value.
+func NewBlogData() BlogData {
+	var data BlogData
+	data.Type = "BlogData"
+	return data
 }
 
 type Cookies struct {
-	ID    string "_id"
-	Rev   string "_rev"
+	ID       string "_id"
+	Rev      string "_rev"
+	Type     string
 	UserKeys map[string]string
 }
 
@@ -44,7 +61,15 @@ func NewCookies() *Cookies {
 type Post struct {
 	ID                                  string "_id"
 	Rev                                 string "_rev"
+	Type                                string
 	Title, Author, Owner, Date, Content string
+}
+
+//Returns a new Post object by value.
+func NewPost() Post {
+	var data Post
+	data.Type = "Post"
+	return data
 }
 
 func (me *Post) HTML(ctx *web.Context) string {
@@ -53,7 +78,7 @@ func (me *Post) HTML(ctx *web.Context) string {
 	retval = strings.Replace(retval, "{{Author}}", me.Author, -1)
 	retval = strings.Replace(retval, "{{Content}}", me.Content, -1)
 	if username := readUsername(ctx); me.Owner == username {
-		ownerControls := html.TextLink("Edit", "EditPost.html?PostID=" + me.ID)
+		ownerControls := html.TextLink("Edit", "EditPost.html?PostID="+me.ID)
 		retval = strings.Replace(retval, "{{OwnerControls}}", ownerControls.String(), -1)
 	} else {
 		retval = strings.Replace(retval, "{{OwnerControls}}", "", -1)
