@@ -22,12 +22,6 @@ type User struct {
 	Username, Email, Password string
 }
 
-type UserList struct {
-	ID    string "_id"
-	Rev   string "_rev"
-	Users []string
-}
-
 type BlogData struct {
 	ID        string "_id"
 	Rev       string "_rev"

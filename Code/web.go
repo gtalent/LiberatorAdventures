@@ -152,16 +152,16 @@ func home(ctx *web.Context, val string) string {
 		if err != nil {
 			break
 		}
-		users := new(UserList)
-		list := "<ul>\n"
-		if _, err = db.Retrieve("UserList", users); err == nil {
-			size := len(users.Users)
+		list := ""
+		if users, err := db.Query("_design/users/_view/all", nil); err == nil {
+			list = "<ul>\n"
+			size := len(users)
 			for i := 0; i < size; i++ {
-				user := users.Users[i]
+				user := strings.SplitAfter(users[i], "User_", 2)[1]
 				list += "\t<il><a href=\"" + "view?user=" + user + "\">" + user + "</a></il><br>\n"
 			}
+			list += "</ul>"
 		}
-		list += "</ul>"
 		data = strings.Replace(data, "{{UserList}}", list, -1)
 		return data
 	case "signin.html":
@@ -249,17 +249,12 @@ func post(ctx *web.Context, val string) string {
 		blogData := new(BlogData)
 		blogData.ID = "BlogData_" + username
 		_, blogData_rev, _ := db.Insert(blogData)
-		users := new(UserList)
-		_, err = db.Retrieve("UserList", users)
 		//if you can't add the user to the user list, delete the user
 		if err != nil {
 			db.Delete(user.ID, user_rev)
 			db.Delete(blogData.ID, blogData_rev)
 			return messagePage("Error", ctx)
 		}
-
-		users.Users = append(users.Users, user.Username)
-		_, err = db.Edit(users)
 
 		//if you can't add the user to the user list, delete the user
 		if err != nil {
