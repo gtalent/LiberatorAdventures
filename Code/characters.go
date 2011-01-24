@@ -24,7 +24,7 @@ func addCharacterPost(ctx *web.Context, val string) string {
 func editCharacterGet(ctx *web.Context, val string) string {
 	if db, err := getDB(); err == nil {
 		blog := NewBlogData()
-		db.Retrieve("BlogData_" + readUsername(ctx), &blog)
+		db.Retrieve("BlogData_"+readUsername(ctx), &blog)
 		chars := "<option>----</option>\n"
 		for i := 0; i < len(blog.Characters); i++ {
 			char := NewCharacter()
@@ -45,14 +45,16 @@ func editCharacterPost(ctx *web.Context, val string) string {
 		var char Character
 		_, err = db.Retrieve(ctx.Params["CharacterID"], &char)
 		if err == nil {
-			file, err := LoadTemplate("Editing " + char.Name, "Edit" + char.Game + "Character.html", ctx)
-			if err == nil {
-				file = strings.Replace(file, "{{CharacterID}}", ctx.Params["CharacterID"], -1)
-				file = strings.Replace(file, "{{Name}}", char.Name, -1)
-				file = strings.Replace(file, "{{World}}", char.World, -1)
-				file = strings.Replace(file, "{{Alligiance}}", char.Alligiance, -1)
-				file = strings.Replace(file, "{{Bio}}", char.Bio, -1)
-				return file
+			if readUsername(ctx) == char.Owner {
+				file, err := LoadTemplate("Editing "+char.Name, "Edit"+char.Game+"Character.html", ctx)
+				if err == nil {
+					file = strings.Replace(file, "{{CharacterID}}", ctx.Params["CharacterID"], -1)
+					file = strings.Replace(file, "{{Name}}", char.Name, -1)
+					file = strings.Replace(file, "{{World}}", char.World, -1)
+					file = strings.Replace(file, "{{Alligiance}}", char.Alligiance, -1)
+					file = strings.Replace(file, "{{Bio}}", char.Bio, -1)
+					return file
+				}
 			}
 		}
 	}
