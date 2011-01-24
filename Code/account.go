@@ -23,6 +23,16 @@ func deleteAccountPost(ctx *web.Context, val string) string {
 				//delete the user's blog data
 				bd := NewBlogData()
 				rev, _ = db.Retrieve("BlogData_"+username, &bd)
+				for i := 0; i < len(bd.Posts); i++ {
+					post := NewPost()
+					postrev, _ := db.Retrieve(bd.Posts[i], &post)
+					db.Delete(bd.Posts[i], postrev)
+				}
+				for i := 0; i < len(bd.Characters); i++ {
+					char := NewCharacter()
+					charrev, _ := db.Retrieve(bd.Characters[i], &char)
+					db.Delete(bd.Characters[i], charrev)
+				}
 				db.Delete("BlogData_"+username, rev)
 				//sign the user out
 				if value, ok := readUserKey(ctx); ok {
