@@ -98,7 +98,7 @@ type Character struct {
 
 func NewCharacter() Character {
 	var data Character
-	data.Type = "Post"
+	data.Type = "Character"
 	return data
 
 }

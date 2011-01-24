@@ -26,7 +26,7 @@ func addCharacterPost(ctx *web.Context, val string) string {
 
 func addSWGEmuCharacterPost(ctx *web.Context, val string) string {
 	if signedIn(ctx) {
-		var char Character
+		char := NewCharacter()
 		char.Owner = readUsername(ctx)
 		char.ID = ctx.Params["CharacterID"]
 		char.Game = ctx.Params["Game"]
@@ -35,9 +35,9 @@ func addSWGEmuCharacterPost(ctx *web.Context, val string) string {
 		char.Alligiance = ctx.Params["Alligiance"]
 		char.Bio = ctx.Params["Bio"]
 		if db, err := getDB(); err == nil {
-			var blog BlogData
+			blog := NewBlogData()
 			db.Retrieve("BlogData_"+char.Owner, &blog)
-			var dummy Character
+			dummy := NewCharacter()
 			_, err = db.Retrieve("Character_" + strconv.Itoa(blog.CharacterIndex) + "_" + char.Owner, &dummy)
 			if err == nil {
 				db.Edit(&char)
