@@ -31,11 +31,13 @@ func NewUser() User {
 }
 
 type BlogData struct {
-	ID        string "_id"
-	Rev       string "_rev"
-	Type      string
-	PostIndex int "PostCount"
-	Posts     []string
+	ID             string "_id"
+	Rev            string "_rev"
+	Type           string
+	CharacterIndex int
+	Characters     []string
+	PostIndex      int "PostCount"
+	Posts          []string
 }
 
 //Returns a new BlogData object by value.
@@ -88,10 +90,10 @@ func (me *Post) HTML(ctx *web.Context) string {
 
 
 type Character struct {
-	ID                                  string "_id"
-	Rev                                 string "_rev"
-	Type                                string
-	Name, World, Alligiance, Bio, Owner string
+	ID                                        string "_id"
+	Rev                                       string "_rev"
+	Type                                      string
+	Game, Name, World, Alligiance, Bio, Owner string
 }
 
 func NewCharacter() Character {

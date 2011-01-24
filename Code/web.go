@@ -199,6 +199,8 @@ func post(ctx *web.Context, val string) string {
 	switch val {
 	case "AddCharacter.html":
 		return addCharacterPost(ctx, val)
+	case "AddSWGEmuCharacter.html":
+		return addSWGEmuCharacterPost(ctx, val)
 	case "EditPost.html":
 		return postEditPost(ctx, val)
 	case "signin.html":
