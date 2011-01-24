@@ -77,7 +77,18 @@ func NewPost() Post {
 func (me *Post) HTML(ctx *web.Context) string {
 	retval := postDiv()
 	retval = strings.Replace(retval, "{{Title}}", me.Title, -1)
-	retval = strings.Replace(retval, "{{Author}}", me.Author, -1)
+	if len(me.Author) != 0 {
+		char := NewCharacter()
+		db, err := getDB()
+		if err == nil {
+			db.Retrieve(me.Author, &char)
+			retval = strings.Replace(retval, "{{Author}}", char.Name, -1)
+		} else {
+			retval = strings.Replace(retval, "{{Author}}", "", -1)
+		}
+	} else {
+		retval = strings.Replace(retval, "{{Author}}", me.Owner, -1)
+	}
 	retval = strings.Replace(retval, "{{Content}}", me.Content, -1)
 	if username := readUsername(ctx); me.Owner == username {
 		ownerControls := html.TextLink("Edit", "EditPost.html?PostID="+me.ID)
