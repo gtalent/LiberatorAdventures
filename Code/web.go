@@ -130,6 +130,8 @@ func LoadTemplate(subTitle, bodyPath string, ctx *web.Context) (string, os.Error
 
 func get(ctx *web.Context, val string) string {
 	switch val {
+	case "EditCharacter.html":
+		return editCharacterGet(ctx, val)
 	case "EditPost.html":
 		return getEditPost(ctx, val)
 	case "Account.html":
@@ -199,8 +201,10 @@ func post(ctx *web.Context, val string) string {
 	switch val {
 	case "AddCharacter.html":
 		return addCharacterPost(ctx, val)
-	case "AddSWGEmuCharacter.html":
-		return addSWGEmuCharacterPost(ctx, val)
+	case "EditCharacter.html":
+		return editCharacterPost(ctx, val)
+	case "EditSWGEmuCharacter.html":
+		return editSWGEmuCharacterPost(ctx, val)
 	case "EditPost.html":
 		return postEditPost(ctx, val)
 	case "signin.html":
