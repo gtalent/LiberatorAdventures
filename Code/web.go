@@ -153,7 +153,7 @@ func get(ctx *web.Context, val string) string {
 			break
 		}
 		list := ""
-		if users, err := db.Query("_design/users/_view/all", nil); err == nil {
+		if users, err := db.QueryIds("_design/users/_view/all", nil); err == nil {
 			list = "<ul>\n"
 			size := len(users)
 			for i := 0; i < size; i++ {
