@@ -4,7 +4,10 @@
 	Title: <br>
 	<input type="text" name="Title" value="{{Title}}" /> <br>
 	Author: <br>
-	<input type="text" name="Author" value="{{Author}}"/> <br>
+	<select name="Author" value="{{Author}}">
+		{{AuthorOptions}}
+	</select>
+	<br>
 	Content: <br>
 	<textarea name="Content" cols=100 rows=20>{{Content}}</textarea> <br>
 	<input type="submit" value="Save" />

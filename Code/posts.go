@@ -35,6 +35,16 @@ func getEditPost(ctx *web.Context, val string) string {
 		file = strings.Replace(file, "{{Title}}", post.Title, 1)
 		file = strings.Replace(file, "{{Author}}", post.Author, 1)
 		file = strings.Replace(file, "{{Content}}", post.Content, 1)
+		authors := "\t\t<option value=\"\">Me</option>\n"
+		blog := NewBlogData()
+		db.Retrieve("BlogData_" + readUsername(ctx), &blog)
+		for i := 0; i < len(blog.Characters); i++ {
+			char := NewCharacter()
+			db.Retrieve(blog.Characters[i], &char)
+			authors += "\t\t<option value=\"" + blog.Characters[i] + "\">" + char.Name + " (" + char.Game + " - " + char.World + ")</option>\n"
+		}
+		file = strings.Replace(file, "{{AuthorOptions}}", authors, 1)
+
 		return file
 	}
 	return fileNotFound
