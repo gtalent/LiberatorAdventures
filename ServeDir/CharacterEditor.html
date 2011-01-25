@@ -1,0 +1,26 @@
+<form name="CharacterData" action="CharacterEditor.html" method="post">
+	<input type="hidden" name="Game" value="{{Game}}" />
+	<input type="hidden" name="CharacterID" value="{{CharacterID}}" />
+	<table>
+		<tr>
+			<td>Name:</td>
+			<td><input type="text" name="Name" value="{{Name}}" /></td>
+		</tr>
+		<tr>
+			<td>World:</td>
+			<td><input type="text" name="World" value="{{World}}"/></td>
+		</tr>
+		<tr>
+			<td>Alligiance (Optional):</td>
+			<td><input type="text" name="Alligiance" value="{{Alligiance}}"/></td>
+		</tr>
+		<tr>
+			<td>Bio (Optional):</td>
+			<td>
+				<textarea name="Bio" cols=50 rows=10 >{{Bio}}</textarea><br>
+				<input type="submit" value="Save" />
+			</td>
+		</tr>
+	</table>
+</form>
+
