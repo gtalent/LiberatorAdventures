@@ -203,8 +203,8 @@ func post(ctx *web.Context, val string) string {
 		return addCharacterPost(ctx, val)
 	case "EditCharacter.html":
 		return editCharacterPost(ctx, val)
-	case "EditSWGEmuCharacter.html":
-		return editSWGEmuCharacterPost(ctx, val)
+	case "CharacterEditor.html":
+		return characterEditorPost(ctx, val)
 	case "EditPost.html":
 		return postEditPost(ctx, val)
 	case "signin.html":
