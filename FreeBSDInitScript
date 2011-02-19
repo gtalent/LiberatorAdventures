@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+#       /etc/rc.d/init.d/LiberatorAdventuresd
+#
+#       starts Liberator Adventures Blog
+#
+# chkconfig: - 20 80
+# description:	A blog about adventures on SWGEmu's Liberator Server
+# processname: LiberatorAdventuresd
+# config: /usr/local/etc/LiberatorAdventured.conf
+
+# Source function library.
+. /etc/rc.subr
+
+prog=LiberatorAdventuresd
+CONFFILE=/usr/local/etc/LiberatorAdventuresd.conf
+LIBADV_OPTS="-conf $CONFFILE"
+
+name="LiberatorAdventuresd"
+start_cmd="${name}_start"
+stop_cmd=":"
+
+LiberatorAdventures_start() {
+        echo -n "Starting LiberatorAdventuresd: "
+	$prog  $LIBADV_OPTS &
+}
+
+LiberatorAdventures_stop() {
+        echo -n "Shutting down LiberatorAdventuresd: "
+	killproc $prog -INT
+}
+
+load_rc_config $name
+run_rc_command "$1"

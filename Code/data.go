@@ -36,7 +36,7 @@ type BlogData struct {
 	Type           string
 	CharacterIndex int
 	Characters     []string
-	PostIndex      int "PostCount"
+	PostIndex      int
 	Posts          []string
 }
 
