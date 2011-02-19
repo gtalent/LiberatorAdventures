@@ -3,7 +3,6 @@
 #
 
 # Some things that run always
-touch /var/lock/blah
 
 # Carry out specific functions when asked to by the system
 case "$1" in
