@@ -125,7 +125,7 @@ func viewPost(ctx *web.Context, val string) string {
 		_, err := db.Retrieve(blogData.Posts[i], &post)
 		if err != nil {
 			post.Title = "Error: Post not found."
-			post.Content = "Error: Post not found."
+			post.Content = ""
 		} else {
 			post.Content = strings.Replace(post.Content, "\n", "<br>", -1)
 		}

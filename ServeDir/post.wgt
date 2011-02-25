@@ -1,5 +1,5 @@
 <div style="background:lightgray">
-	<strong>{{Title}}</strong> - by {{Author}}<br>
+	<strong>{{Title}}</strong> - by {{Author}} <br>
 	{{Content}}<br>
 	{{OwnerControls}}
 </div>

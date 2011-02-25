@@ -6,6 +6,27 @@ import (
 	"strings"
 )
 
+func viewCharacterGet(ctx *web.Context, val string) string {
+	charid, ok := ctx.Params["CharID"]
+	if ok {
+		db, err := getDB()
+		if err != nil {
+			return fileNotFound
+		}
+		char := NewCharacter()
+		db.Retrieve(charid, &char)
+		if file, err := LoadTemplate(char.Name, "Character.html", ctx); err == nil {
+			file = strings.Replace(file, "{{Name}}", char.Name, -1)
+			file = strings.Replace(file, "{{Game}}", char.Game, -1)
+			file = strings.Replace(file, "{{World}}", char.World, -1)
+			file = strings.Replace(file, "{{Alligence}}", char.Alligiance, -1)
+			file = strings.Replace(file, "{{Bio}}", char.Bio, -1)
+			return file
+		}
+	}
+	return fileNotFound
+}
+
 func addCharacterPost(ctx *web.Context, val string) string {
 	game, ok := ctx.Params["Game"]
 	if ok {

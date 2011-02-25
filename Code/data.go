@@ -82,7 +82,7 @@ func (me *Post) HTML(ctx *web.Context) string {
 		db, err := getDB()
 		if err == nil {
 			db.Retrieve(me.Author, &char)
-			retval = strings.Replace(retval, "{{Author}}", char.Name, -1)
+			retval = strings.Replace(retval, "{{Author}}", "<a href=\"Character.html?CharID=" + me.Author + "\">" + char.Name + "</a>", -1)
 		} else {
 			retval = strings.Replace(retval, "{{Author}}", "", -1)
 		}
@@ -111,7 +111,6 @@ func NewCharacter() Character {
 	var data Character
 	data.Type = "Character"
 	return data
-
 }
 
 //Unfinished

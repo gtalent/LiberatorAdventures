@@ -11,7 +11,6 @@ import (
 	"blinz/server"
 )
 
-const cookie string = "LiberatorAdventures"
 
 var fileNotFound string = "File not found, perhaps it was taken by Tusken Raiders?"
 var out *server.ChannelLine
@@ -134,6 +133,8 @@ func get(ctx *web.Context, val string) string {
 		return editCharacterGet(ctx, val)
 	case "EditPost.html":
 		return getEditPost(ctx, val)
+	case "Character.html":
+		return viewCharacterGet(ctx, val)
 	case "Account.html":
 		return accountManagementGet(ctx, val)
 	case "Logout":
