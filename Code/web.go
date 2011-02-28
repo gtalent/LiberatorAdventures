@@ -129,26 +129,14 @@ func LoadTemplate(subTitle, bodyPath string, ctx *web.Context) (string, os.Error
 
 func get(ctx *web.Context, val string) string {
 	switch val {
+	case "Account.html":
+		return accountManagementGet(ctx, val)
+	case "Character.html":
+		return viewCharacterGet(ctx, val)
 	case "EditCharacter.html":
 		return editCharacterGet(ctx, val)
 	case "EditPost.html":
 		return getEditPost(ctx, val)
-	case "Character.html":
-		return viewCharacterGet(ctx, val)
-	case "Account.html":
-		return accountManagementGet(ctx, val)
-	case "Logout":
-		if value, ok := readUserKey(ctx); ok {
-			ctx.SetCookie("UserKey", value, -6000000)
-			cookies.UserKeys[value] = "", false
-		}
-		if username, ok := readCookie("Username", ctx); ok {
-			ctx.SetCookie("Username", username, -6000000)
-		}
-		return messagePage("You're signed out.", ctx)
-		break
-	case "view/", "view":
-		return viewPost(ctx, val)
 	case "", "index.html", "index.htm":
 		db, err := getDB()
 		data, err := LoadTemplate("", "index.html", ctx)
@@ -167,6 +155,18 @@ func get(ctx *web.Context, val string) string {
 		}
 		data = strings.Replace(data, "{{UserList}}", list, -1)
 		return data
+	case "Logout":
+		if value, ok := readUserKey(ctx); ok {
+			ctx.SetCookie("UserKey", value, -6000000)
+			cookies.UserKeys[value] = "", false
+		}
+		if username, ok := readCookie("Username", ctx); ok {
+			ctx.SetCookie("Username", username, -6000000)
+		}
+		return messagePage("You're signed out.", ctx)
+		break
+	case "Schematic.html":
+		return viewSchematicGet(ctx, val)
 	case "signin.html":
 		if signedIn(ctx) {
 			return messagePage("You're already signed in.", ctx)
@@ -176,7 +176,8 @@ func get(ctx *web.Context, val string) string {
 			break
 		}
 		return retval
-
+	case "view/", "view":
+		return viewPost(ctx, val)
 	default:
 		if strings.HasSuffix(val, ".html") {
 			retval, err := LoadTemplate("", val, ctx)
@@ -202,10 +203,12 @@ func post(ctx *web.Context, val string) string {
 	switch val {
 	case "AddCharacter.html":
 		return addCharacterPost(ctx, val)
-	case "EditCharacter.html":
-		return editCharacterPost(ctx, val)
 	case "CharacterEditor.html":
 		return characterEditorPost(ctx, val)
+	case "DeleteAccount.html":
+		return deleteAccountPost(ctx, val)
+	case "EditCharacter.html":
+		return editCharacterPost(ctx, val)
 	case "EditPost.html":
 		return postEditPost(ctx, val)
 	case "signin.html":
@@ -224,9 +227,6 @@ func post(ctx *web.Context, val string) string {
 				return messagePage("Invalid username and password combination.", ctx)
 			}
 		}
-		break
-	case "DeleteAccount.html":
-		return deleteAccountPost(ctx, val)
 		break
 	case "CreateUser":
 		username := ctx.Params["Username"]
