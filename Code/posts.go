@@ -116,8 +116,7 @@ func viewPost(ctx *web.Context, val string) string {
 	blogData := NewBlogData()
 	_, err = db.Retrieve("BlogData_"+user, &blogData)
 	if err != nil {
-		retval = strings.Replace(retval, "{{Posts}}", "No posts from "+user+".", -1)
-		return retval
+		return fileNotFound
 	}
 	post := NewPost()
 	posts := ""

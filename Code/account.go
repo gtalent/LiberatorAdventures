@@ -2,6 +2,7 @@ package main
 
 import (
 	"web"
+	"strings"
 )
 
 func accountManagementGet(ctx *web.Context, val string) string {
@@ -9,8 +10,61 @@ func accountManagementGet(ctx *web.Context, val string) string {
 	if err != nil {
 		return fileNotFound
 	}
-
 	return file
+}
+
+func createAccountPost(ctx *web.Context, val string) string {
+	username := ctx.Params["Username"]
+	email := ctx.Params["Email"]
+	password := ctx.Params["Password"]
+	password2 := ctx.Params["Password2"]
+	if password != password2 {
+		return messagePage("Passwords do not match.", ctx)
+	}
+	if len(password) < 6 {
+		return messagePage("You're password must be at least 6 characters long.", ctx)
+	}
+	if strings.Contains(username, ";") || strings.Contains(username, "\\") || strings.Contains(username, " ") || strings.Contains(username, "=") {
+		return messagePage("Usernames may not contian the following characters: \" \", \"=\", \"\\\", or \";\".", ctx)
+	}
+	user := NewUser()
+	user.Username = username
+	user.ID = "User_" + username
+	user.Email = email
+	user.Password = password
+	db, err := getDB()
+	if err != nil {
+		return fileNotFound
+	}
+	_, user_rev, err := db.Insert(&user)
+	if err != nil {
+		return messagePage("Username already taken.", ctx)
+	}
+	//create a BlogData document for this user
+	blogData := NewBlogData()
+	blogData.ID = "BlogData_" + username
+	_, blogData_rev, _ := db.Insert(&blogData)
+	//if you can't add the user to the user list, delete the user
+	if err != nil {
+		db.Delete(user.ID, user_rev)
+		db.Delete(blogData.ID, blogData_rev)
+		return messagePage("Error", ctx)
+	}
+
+	//if you can't add the user to the user list, delete the user
+	if err != nil {
+		db.Delete(user.ID, user_rev)
+		return messagePage("Error", ctx)
+	}
+
+	//return news of success
+	if file, err := LoadTemplate("", "userCreated.html", ctx); err == nil {
+		file = strings.Replace(file, "{{User.Name}}", username, -1)
+		return file
+	} else {
+		return fileNotFound
+	}
+	return fileNotFound
 }
 
 func deleteAccountPost(ctx *web.Context, val string) string {
@@ -48,4 +102,3 @@ func deleteAccountPost(ctx *web.Context, val string) string {
 	}
 	return messagePage("Operation failed, try again later.", ctx)
 }
-

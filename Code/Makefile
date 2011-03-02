@@ -2,8 +2,14 @@ include $(GOROOT)/src/Make.inc
 
 TARG=main
 GOFILES=\
+	dbviews/characters.go\
+	dbviews/posts.go\
+	dbviews/users.go\
+	dbviews/design.go\
 	schematics/data.go\
 	schematics/schematics.go\
+	users/data.go\
+	users/session.go\
 	web.go\
 	posts.go\
 	account.go\

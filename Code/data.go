@@ -16,18 +16,16 @@ func getDB() (couch.Database, os.Error) {
 	return couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", server.Settings.Database())
 }
 
-type User struct {
-	ID                        string "_id"
-	Rev                       string "_rev"
-	Type                      string
-	Username, Email, Password string
-}
-
-//Returns a new User object by value.
-func NewUser() User {
-	var data User
-	data.Type = "User"
-	return data
+//Initializes the database by adding the design documents.
+func initDB() bool {
+	db, err := getDB()
+	if err != nil {
+		return false
+	}
+	_, _, err1 := db.Insert(design_users)
+	_, _, err2 := db.Insert(design_posts)
+	_, _, err3 := db.Insert(design_characters)
+	return err1 == nil && err2 == nil && err3 == nil
 }
 
 type BlogData struct {
