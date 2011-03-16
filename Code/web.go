@@ -17,7 +17,8 @@ var out *server.ChannelLine
 //Returns the given cookie list as map
 func readCookies(ctx *web.Context) map[string]string {
 	cookies := ctx.Headers["Cookie"]
-	list := strings.Split(cookies, "; ", -1)
+	//list := strings.Split(cookies[0], "; ", -1)
+	list := cookies
 	size := len(list)
 	m := make(map[string]string)
 	for i := 0; i < size; i++ {
@@ -31,7 +32,8 @@ func readCookies(ctx *web.Context) map[string]string {
 //Returns the desired cookie value if present, and an ok boolean value to indicate success or failure
 func readCookie(cookie string, ctx *web.Context) (string, bool) {
 	cookies := ctx.Headers["Cookie"]
-	list := strings.Split(cookies, "; ", -1)
+	//list := strings.Split(cookies[0], "; ", -1)
+	list := cookies
 	size := len(list)
 	for i := 0; i < size; i++ {
 		pair := strings.Split(list[i], "=", -1)

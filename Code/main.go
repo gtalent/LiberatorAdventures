@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	dbinit := flag.Bool("initDB", true, "Initialize the database, and then end execution.")
+	dbinit := flag.Bool("initDB", false, "Initialize the database, and then end execution.")
 	settings := flag.String("conf", "blinzd.conf", "The location of the configuration file.")
 	p := flag.Bool("p", false, "Indicates whether or not the program should print output to the terminal.")
 	flag.Parse()
