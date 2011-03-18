@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+
 func accountManagementGet(ctx *web.Context, val string) string {
 	file, err := LoadTemplate("Accout Management", val, ctx)
 	if err != nil {

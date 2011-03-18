@@ -35,7 +35,9 @@ func readCookie(cookie string, ctx *web.Context) (string, bool) {
 	//list := strings.Split(cookies[0], "; ", -1)
 	list := cookies
 	size := len(list)
+	out.Put(strconv.Itoa(size))
 	for i := 0; i < size; i++ {
+		out.Put(list[i])
 		pair := strings.Split(list[i], "=", -1)
 		if pair[0] == cookie {
 			return pair[1], true
@@ -213,6 +215,7 @@ func post(ctx *web.Context, val string) string {
 	case "EditPost.html":
 		return postEditPost(ctx, val)
 	case "signin.html":
+		//In: users/session.go
 		return signinPost(ctx, val)
 	case "CreateUser":
 		return createAccountPost(ctx, val)

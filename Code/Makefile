@@ -9,10 +9,10 @@ GOFILES=\
 	schematics/data.go\
 	schematics/schematics.go\
 	users/data.go\
+	users/account.go\
 	users/session.go\
 	web.go\
 	posts.go\
-	account.go\
 	characters.go\
 	data.go\
 	main.go\

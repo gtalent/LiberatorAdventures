@@ -22,6 +22,5 @@ func signinPost(ctx *web.Context, val string) string {
 			return messagePage("Invalid username and password combination.", ctx)
 		}
 	}
-
-	return fileNotFound
+	return messagePage("Could not access the database.", ctx)
 }
