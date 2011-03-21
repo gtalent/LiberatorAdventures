@@ -12,6 +12,7 @@ import (
 
 var fileNotFound string = "File not found, perhaps it was taken by Tusken Raiders?"
 var out *server.ChannelLine
+var cookies *Cookies = NewCookies()
 
 //Returns the given cookie list as map
 func readCookies(ctx *web.Context) map[string]string {

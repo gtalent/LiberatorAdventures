@@ -3,13 +3,23 @@ package main
 import (
 	"strings"
 	"os"
-	"web"
-	"blinz/html"
 	"blinz/server"
 	"couch-go.googlecode.com/hg"
 )
 
-var cookies *Cookies = NewCookies()
+type designDoc struct {
+	ID    string "_id"
+	Rev   string "_rev"
+	Lang  string "language"
+	Views map[string]map[string]string "views"
+}
+
+func view(label, code string) map[string]map[string]string {
+	view := make(map[string]map[string]string)
+	view[label] = make(map[string]string)
+	view[label]["map"] = code
+	return view
+}
 
 //Gets the database connection.
 func getDB() (couch.Database, os.Error) {
@@ -56,59 +66,6 @@ func NewCookies() *Cookies {
 	retval := new(Cookies)
 	retval.UserKeys = make(map[string]string)
 	return retval
-}
-
-type Post struct {
-	ID                                  string "_id"
-	Rev                                 string "_rev"
-	Type                                string
-	Title, Author, Owner, Date, Content string
-}
-
-//Returns a new Post object by value.
-func NewPost() Post {
-	var data Post
-	data.Type = "Post"
-	return data
-}
-
-func (me *Post) HTML(ctx *web.Context) string {
-	retval := postDiv()
-	retval = strings.Replace(retval, "{{Title}}", me.Title, -1)
-	if len(me.Author) != 0 {
-		char := NewCharacter()
-		db, err := getDB()
-		if err == nil {
-			db.Retrieve(me.Author, &char)
-			retval = strings.Replace(retval, "{{Author}}", "<a href=\"Character.html?CharID=" + me.Author + "\">" + char.Name + "</a>", -1)
-		} else {
-			retval = strings.Replace(retval, "{{Author}}", "", -1)
-		}
-	} else {
-		retval = strings.Replace(retval, "{{Author}}", me.Owner, -1)
-	}
-	retval = strings.Replace(retval, "{{Content}}", me.Content, -1)
-	if username := readUsername(ctx); me.Owner == username {
-		ownerControls := html.TextLink("Edit", "EditPost.html?PostID="+me.ID)
-		retval = strings.Replace(retval, "{{OwnerControls}}", ownerControls.String(), -1)
-	} else {
-		retval = strings.Replace(retval, "{{OwnerControls}}", "", -1)
-	}
-	return retval
-}
-
-
-type Character struct {
-	ID                                        string "_id"
-	Rev                                       string "_rev"
-	Type                                      string
-	Game, Name, World, Alligiance, Bio, Owner string
-}
-
-func NewCharacter() Character {
-	var data Character
-	data.Type = "Character"
-	return data
 }
 
 //Unfinished
