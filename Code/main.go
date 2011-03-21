@@ -34,7 +34,7 @@ func main() {
 		}
 	} else {
 		for {
-			_ = <-mainChan
+			<-mainChan
 		}
 	}
 }

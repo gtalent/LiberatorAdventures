@@ -9,8 +9,7 @@ GOFILES=\
 	schematics/data.go\
 	schematics/schematics.go\
 	users/data.go\
-	users/account.go\
-	users/session.go\
+	users/web.go\
 	web.go\
 	posts.go\
 	characters.go\
@@ -20,6 +19,6 @@ GOFILES=\
 include $(GOROOT)/src/Make.pkg
 
 link: package
-	6l -o main _go_.6
+	$(O)l -o main _go_.6
 run: link
 	./main

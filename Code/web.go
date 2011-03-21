@@ -10,38 +10,20 @@ import (
 	"blinz/server"
 )
 
-
 var fileNotFound string = "File not found, perhaps it was taken by Tusken Raiders?"
 var out *server.ChannelLine
 
 //Returns the given cookie list as map
 func readCookies(ctx *web.Context) map[string]string {
-	cookies := ctx.Headers["Cookie"]
-	//list := strings.Split(cookies[0], "; ", -1)
-	list := cookies
-	size := len(list)
-	m := make(map[string]string)
-	for i := 0; i < size; i++ {
-		pair := strings.Split(list[i], "=", -1)
-		m[pair[0]] = pair[1]
-	}
-	return m
+	return ctx.Cookies
 }
 
 //Reads the requested cookie from the given cookie list.
 //Returns the desired cookie value if present, and an ok boolean value to indicate success or failure
 func readCookie(cookie string, ctx *web.Context) (string, bool) {
-	cookies := ctx.Headers["Cookie"]
-	//list := strings.Split(cookies[0], "; ", -1)
-	list := cookies
-	size := len(list)
-	out.Put(strconv.Itoa(size))
-	for i := 0; i < size; i++ {
-		out.Put(list[i])
-		pair := strings.Split(list[i], "=", -1)
-		if pair[0] == cookie {
-			return pair[1], true
-		}
+	if ctx.Cookies != nil {
+		c, ok := ctx.Cookies[cookie]
+		return c, ok
 	}
 	return "", false
 }
@@ -208,7 +190,11 @@ func post(ctx *web.Context, val string) string {
 		return addCharacterPost(ctx, val)
 	case "CharacterEditor.html":
 		return characterEditorPost(ctx, val)
+	case "CreateUser":
+		//In: users/account.go
+		return createAccountPost(ctx, val)
 	case "DeleteAccount.html":
+		//In: users/account.go
 		return deleteAccountPost(ctx, val)
 	case "EditCharacter.html":
 		return editCharacterPost(ctx, val)
@@ -217,8 +203,6 @@ func post(ctx *web.Context, val string) string {
 	case "signin.html":
 		//In: users/session.go
 		return signinPost(ctx, val)
-	case "CreateUser":
-		return createAccountPost(ctx, val)
 	}
 	return fileNotFound
 }
