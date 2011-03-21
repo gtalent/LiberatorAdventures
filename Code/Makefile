@@ -7,7 +7,7 @@ GOFILES=\
 	dbviews/users.go\
 	dbviews/design.go\
 	schematics/data.go\
-	schematics/schematics.go\
+	schematics/web.go\
 	users/data.go\
 	users/web.go\
 	web.go\
