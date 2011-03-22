@@ -4,6 +4,7 @@ import (
 	"web"
 	"strings"
 	"strconv"
+	"blinz/html"
 )
 
 //The HTTP get method for getting the page for editing posts.
@@ -134,7 +135,27 @@ func viewPost(ctx *web.Context, val string) string {
 	return retval
 }
 
-func managePostsPost(ctx *web.Context, val string) string {
-
-	return fileNotFound
+func (me *Post) HTML(ctx *web.Context) string {
+	retval := postDiv()
+	retval = strings.Replace(retval, "{{Title}}", me.Title, -1)
+	if len(me.Author) != 0 {
+		char := NewCharacter()
+		db, err := getDB()
+		if err == nil {
+			db.Retrieve(me.Author, &char)
+			retval = strings.Replace(retval, "{{Author}}", "<a href=\"Character.html?CharID=" + me.Author + "\">" + char.Name + "</a>", -1)
+		} else {
+			retval = strings.Replace(retval, "{{Author}}", "", -1)
+		}
+	} else {
+		retval = strings.Replace(retval, "{{Author}}", me.Owner, -1)
+	}
+	retval = strings.Replace(retval, "{{Content}}", me.Content, -1)
+	if username := readUsername(ctx); me.Owner == username {
+		ownerControls := html.TextLink("Edit", "EditPost.html?PostID="+me.ID)
+		retval = strings.Replace(retval, "{{OwnerControls}}", ownerControls.String(), -1)
+	} else {
+		retval = strings.Replace(retval, "{{OwnerControls}}", "", -1)
+	}
+	return retval
 }
