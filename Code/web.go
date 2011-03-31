@@ -1,3 +1,8 @@
+/*
+ * Copyright 2011 <gtalent2@gmail.com>
+ * This file is released under the BSD license, as defined here:
+ * 	http://www.opensource.org/licenses/bsd-license.php
+ */
 package main
 
 import (
@@ -7,11 +12,10 @@ import (
 	"log"
 	"os"
 	"web"
-	"blinz/server"
 )
 
 var fileNotFound string = "File not found, perhaps it was taken by Tusken Raiders?"
-var out *server.ChannelLine
+var out *ChannelLine
 var cookies *Cookies = NewCookies()
 
 //Returns the given cookie list as map
@@ -70,14 +74,14 @@ func TopBar(ctx *web.Context) string {
 			postManager = file
 		}
 	}
-	retval = strings.Replace(retval, "{{WebHome}}", server.Settings.WebHome(), -1)
+	retval = strings.Replace(retval, "{{WebHome}}", Settings.WebHome(), -1)
 	retval = strings.Replace(retval, "{{SessionManager}}", sessionManager, -1)
 	retval = strings.Replace(retval, "{{PostManagement}}", postManager, -1)
 	return retval
 }
 
 func postDiv() string {
-	bytes, err := ioutil.ReadFile(server.Settings.WebRoot() + "post.wgt")
+	bytes, err := ioutil.ReadFile(Settings.WebRoot() + "post.wgt")
 	if err != nil {
 		return "<div><h3>{{Title}}</h3><br>{{Content}}</div>"
 	}
@@ -93,7 +97,7 @@ func messagePage(message string, ctx *web.Context) string {
 }
 
 func LoadFile(path string) (string, os.Error) {
-	data, err := ioutil.ReadFile(server.Settings.WebRoot() + path)
+	data, err := ioutil.ReadFile(Settings.WebRoot() + path)
 	return string(data), err
 }
 
@@ -214,11 +218,11 @@ func (me dummy) Write(p []byte) (n int, err os.Error) {
 	return 0, nil
 }
 
-func RunWebServer(line *server.ChannelLine) {
+func RunWebServer(line *ChannelLine) {
 	out = line
 	var s web.Server
 	s.Logger = log.New(new(dummy), "", 0)
 	s.Get("/Liberator/(.*)", get)
 	s.Post("/Liberator/(.*)", post)
-	s.Run("0.0.0.0:" + strconv.Uitoa(server.Settings.WebPort()))
+	s.Run("0.0.0.0:" + strconv.Uitoa(Settings.WebPort()))
 }

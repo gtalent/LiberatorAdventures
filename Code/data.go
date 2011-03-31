@@ -1,9 +1,13 @@
+/*
+ * Copyright 2011 <gtalent2@gmail.com>
+ * This file is released under the BSD license, as defined here:
+ * 	http://www.opensource.org/licenses/bsd-license.php
+ */
 package main
 
 import (
 	"strings"
 	"os"
-	"blinz/server"
 	"couch-go.googlecode.com/hg"
 )
 
@@ -23,7 +27,7 @@ func view(label, code string) map[string]map[string]string {
 
 //Gets the database connection.
 func getDB() (couch.Database, os.Error) {
-	return couch.NewDatabase(server.Settings.DatabaseAddress(), "5984", server.Settings.Database())
+	return couch.NewDatabase(Settings.DatabaseAddress(), "5984", Settings.Database())
 }
 
 //Initializes the database by adding the design documents.

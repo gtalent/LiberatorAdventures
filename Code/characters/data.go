@@ -1,3 +1,8 @@
+/*
+ * Copyright 2011 <gtalent2@gmail.com>
+ * This file is released under the BSD license, as defined here:
+ * 	http://www.opensource.org/licenses/bsd-license.php
+ */
 package main 
 
 var design_characters designDoc = designDoc{ID:   "_design/characters", Lang: "javascript",

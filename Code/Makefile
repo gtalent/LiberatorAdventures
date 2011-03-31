@@ -10,6 +10,9 @@ GOFILES=\
 	schematics/web.go\
 	users/data.go\
 	users/web.go\
+	util/catalog.go\
+	util/channel.go\
+	util/settings.go\
 	web.go\
 	data.go\
 	main.go\

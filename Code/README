@@ -1,0 +1,8 @@
+Requirements:
+		- Highly recommend a Unix-like operating system.
+		- CouchDB
+
+Build requirements:
+		- Go, get at golang.org
+		- web.go, getwebgo.com
+		- couch-go, http://code.google.com/p/couch-go/
