@@ -1,5 +1,5 @@
 Requirements:
-		- Highly recommend a Unix-like operating system.
+		- Highly recommend Linux, FreeBSD, or OS X.
 		- CouchDB
 
 Build requirements:
