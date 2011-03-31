@@ -9,7 +9,6 @@ import (
 	"web"
 	"strings"
 	"strconv"
-	"blinz/html"
 )
 
 //The HTTP get method for getting the page for editing posts.
@@ -157,7 +156,7 @@ func (me *Post) HTML(ctx *web.Context) string {
 	}
 	retval = strings.Replace(retval, "{{Content}}", me.Content, -1)
 	if username := readUsername(ctx); me.Owner == username {
-		ownerControls := html.TextLink("Edit", "EditPost.html?PostID="+me.ID)
+		ownerControls := TextLink("Edit", "EditPost.html?PostID="+me.ID)
 		retval = strings.Replace(retval, "{{OwnerControls}}", ownerControls.String(), -1)
 	} else {
 		retval = strings.Replace(retval, "{{OwnerControls}}", "", -1)

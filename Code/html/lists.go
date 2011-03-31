@@ -1,3 +1,8 @@
+/*
+ * Copyright 2011 <gtalent2@gmail.com>
+ * This file is released under the BSD license, as defined here:
+ * 	http://www.opensource.org/licenses/bsd-license.php
+ */
 package main
 
 //Used for the <ul> ta.

@@ -4,13 +4,17 @@ TARG=main
 GOFILES=\
 	characters/data.go\
 	characters/web.go\
+	html/forms.go\
+	html/html.go\
+	html/image.go\
+	html/lists.go\
+	html/page.go\
 	posts/data.go\
 	posts/web.go\
 	schematics/data.go\
 	schematics/web.go\
 	users/data.go\
 	users/web.go\
-	util/catalog.go\
 	util/channel.go\
 	util/settings.go\
 	web.go\
