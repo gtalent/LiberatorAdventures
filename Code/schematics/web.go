@@ -9,7 +9,6 @@ import (
 	"web"
 	"strings"
 	"strconv"
-	"blinz/html"
 )
 
 func viewSchematicGet(ctx *web.Context, val string) string {
@@ -23,7 +22,7 @@ func viewSchematicGet(ctx *web.Context, val string) string {
 		schem := NewSchematic()
 		db.Retrieve(schemID, &schem)
 
-		materials := html.NewUnorderedList()
+		materials := NewUnorderedList()
 		materialTemp, err := LoadFile("widgets/Material.html")
 		if err != nil {
 			return fileNotFound
