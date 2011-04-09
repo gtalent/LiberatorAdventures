@@ -145,7 +145,7 @@ func get(ctx *web.Context, val string) string {
 		}
 		data = strings.Replace(data, "{{UserList}}", list, -1)
 		return data
-	case "Logout":
+	case "signout.html":
 		if value, ok := readUserKey(ctx); ok {
 			ctx.SetCookie("UserKey", value, -6000000)
 			cookies.UserKeys[value] = "", false
