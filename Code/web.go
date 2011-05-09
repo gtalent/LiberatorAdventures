@@ -1,7 +1,7 @@
 /*
  * Copyright 2011 <gtalent2@gmail.com>
  * This file is released under the BSD license, as defined here:
- * 	http://www.opensource.org/licenses/bsd-license.php
+ *	http://www.opensource.org/licenses/bsd-license.php
  */
 package main
 
@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"strings"
 	"strconv"
-	"log"
+	//"log"
 	"os"
 	"web"
 )
@@ -18,19 +18,16 @@ var fileNotFound string = "File not found, perhaps it was taken by Tusken Raider
 var out *ChannelLine
 var cookies *Cookies = NewCookies()
 
-//Returns the given cookie list as map
-func readCookies(ctx *web.Context) map[string]string {
-	return ctx.Cookies
-}
-
 //Reads the requested cookie from the given cookie list.
 //Returns the desired cookie value if present, and an ok boolean value to indicate success or failure
 func readCookie(cookie string, ctx *web.Context) (string, bool) {
-	if ctx.Cookies != nil {
-		c, ok := ctx.Cookies[cookie]
-		return c, ok
+	c, ok := ctx.GetSecureCookie(cookie)
+	if ok {
+		out.Put("Found " + cookie)
+	} else {
+		out.Put("Did not find " + cookie)
 	}
-	return "", false
+	return c, ok
 }
 
 func readUserKey(ctx *web.Context) (string, bool) {
@@ -54,6 +51,7 @@ func readUsername(ctx *web.Context) string {
 	return ""
 }
 
+//Loads the bar at the top of the page with the title and session management links.
 func TopBar(ctx *web.Context) string {
 	_, signedin := readUserKey(ctx)
 	retval, err := LoadFile("TopBar.wgt")
@@ -147,11 +145,11 @@ func get(ctx *web.Context, val string) string {
 		return data
 	case "signout.html":
 		if value, ok := readUserKey(ctx); ok {
-			ctx.SetCookie("UserKey", value, -6000000)
+			ctx.SetSecureCookie("UserKey", value, -6000000)
 			cookies.UserKeys[value] = "", false
 		}
 		if username, ok := readCookie("Username", ctx); ok {
-			ctx.SetCookie("Username", username, -6000000)
+			ctx.SetSecureCookie("Username", username, -6000000)
 		}
 		return messagePage("You're signed out.", ctx)
 		break
@@ -220,9 +218,9 @@ func (me dummy) Write(p []byte) (n int, err os.Error) {
 
 func RunWebServer(line *ChannelLine) {
 	out = line
-	var s web.Server
-	s.Logger = log.New(new(dummy), "", 0)
-	s.Get("/Liberator/(.*)", get)
-	s.Post("/Liberator/(.*)", post)
-	s.Run("0.0.0.0:" + strconv.Uitoa(Settings.WebPort()))
+	//web.SetLogger(log.New(new(dummy), "", 0))
+	web.Config.CookieSecret = "Narf!"
+	web.Get("/Liberator/(.*)", get)
+	web.Post("/Liberator/(.*)", post)
+	web.Run("0.0.0.0:" + strconv.Uitoa(Settings.WebPort()))
 }

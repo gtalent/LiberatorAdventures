@@ -15,6 +15,7 @@ import (
 //session management
 
 func signinPost(ctx *web.Context, val string) string {
+	out.Put("Narf!")
 	username := ctx.Params["Username"]
 	password := ctx.Params["Password"]
 	user := NewUser()
@@ -24,7 +25,7 @@ func signinPost(ctx *web.Context, val string) string {
 				num := rand.Int63()
 				key := username + "_" + strconv.Itoa64(num)
 				cookies.UserKeys[key] = username
-				ctx.SetCookie("UserKey", key, 6000000)
+				ctx.SetSecureCookie("UserKey", key, 6000000)
 				return messagePage("You are now signed in.", ctx)
 			}
 			return messagePage("Invalid username and password combination.", ctx)
