@@ -13,9 +13,7 @@ type MaterialSolution struct {
 }
 
 type Schematic struct {
-	ID        string "_id"
-	Rev       string "_rev"
-	Object	  string
+	Document
 	Owner	  string
 	Type      string
 	Name      string

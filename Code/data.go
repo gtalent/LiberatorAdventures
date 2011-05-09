@@ -11,7 +11,7 @@ import (
 	"couch-go.googlecode.com/hg"
 )
 
-type designDoc struct {
+type DesignDoc struct {
 	ID    string "_id"
 	Rev   string "_rev"
 	Lang  string "language"
@@ -42,10 +42,14 @@ func initDB() bool {
 	return err1 == nil && err2 == nil && err3 == nil
 }
 
-type BlogData struct {
+type Document struct {
 	ID             string "_id"
 	Rev            string "_rev"
 	Type           string
+}
+
+type BlogData struct {
+	Document
 	CharacterIndex int
 	Characters     []string
 	PostIndex      int
@@ -60,9 +64,7 @@ func NewBlogData() BlogData {
 }
 
 type Cookies struct {
-	ID       string "_id"
-	Rev      string "_rev"
-	Type     string
+	Document
 	UserKeys map[string]string
 }
 
