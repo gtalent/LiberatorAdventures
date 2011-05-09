@@ -9,8 +9,11 @@ var design_users DesignDoc = DesignDoc{ID:   "_design/users", Lang: "javascript"
 	Views: view("all", "function(doc) {if (doc.Type == 'User') emit(doc.Username, doc)}")}
 
 type User struct {
-	Document
-	Username, Email, Password string
+	ID             string "_id"
+	Rev            string "_rev"
+	Type           string
+	Username, Email string
+	Password []byte
 }
 
 //Returns a new User object by value.

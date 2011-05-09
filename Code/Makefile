@@ -16,6 +16,7 @@ GOFILES=\
 	users/data.go\
 	users/web.go\
 	util/channel.go\
+	util/misc.go\
 	util/settings.go\
 	web.go\
 	data.go\

@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"strings"
 	"strconv"
-	//"log"
+	"log"
 	"os"
 	"web"
 )
@@ -22,11 +22,6 @@ var cookies *Cookies = NewCookies()
 //Returns the desired cookie value if present, and an ok boolean value to indicate success or failure
 func readCookie(cookie string, ctx *web.Context) (string, bool) {
 	c, ok := ctx.GetSecureCookie(cookie)
-	if ok {
-		out.Put("Found " + cookie)
-	} else {
-		out.Put("Did not find " + cookie)
-	}
 	return c, ok
 }
 
@@ -213,12 +208,13 @@ func post(ctx *web.Context, val string) string {
 type dummy struct{}
 
 func (me dummy) Write(p []byte) (n int, err os.Error) {
+	out.Put(string(p))
 	return 0, nil
 }
 
 func RunWebServer(line *ChannelLine) {
 	out = line
-	//web.SetLogger(log.New(new(dummy), "", 0))
+	web.SetLogger(log.New(new(dummy), "", 0))
 	web.Config.CookieSecret = "Narf!"
 	web.Get("/Liberator/(.*)", get)
 	web.Post("/Liberator/(.*)", post)

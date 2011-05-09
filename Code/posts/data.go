@@ -11,7 +11,9 @@ var design_posts DesignDoc = DesignDoc{ID:   "_design/posts",Lang: "javascript",
 	Views: view("by_owner", "function(doc) { if (doc.Type == 'Post')  emit(doc.Title, doc) }")}
 
 type Post struct {
-	Document
+	ID             string "_id"
+	Rev            string "_rev"
+	Type           string
 	Title, Author, Owner, Date, Content string
 }
 

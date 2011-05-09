@@ -15,13 +15,12 @@ import (
 //session management
 
 func signinPost(ctx *web.Context, val string) string {
-	out.Put("Narf!")
 	username := ctx.Params["Username"]
 	password := ctx.Params["Password"]
 	user := NewUser()
 	if db, err := getDB(); err == nil {
 		if _, err = db.Retrieve("User_"+username, &user); err == nil {
-			if password == user.Password {
+			if string(PasswordHash(password)) == string(user.Password) {
 				num := rand.Int63()
 				key := username + "_" + strconv.Itoa64(num)
 				cookies.UserKeys[key] = username
@@ -30,6 +29,7 @@ func signinPost(ctx *web.Context, val string) string {
 			}
 			return messagePage("Invalid username and password combination.", ctx)
 		}
+		return messagePage("Username not found.", ctx)
 	}
 	return messagePage("Could not access the database.", ctx)
 }
@@ -62,13 +62,14 @@ func createAccountPost(ctx *web.Context, val string) string {
 	user.Username = username
 	user.ID = "User_" + username
 	user.Email = email
-	user.Password = password
+	user.Password = PasswordHash(password)
 	db, err := getDB()
 	if err != nil {
 		return fileNotFound
 	}
 	_, user_rev, err := db.Insert(&user)
 	if err != nil {
+		out.Put(err.String())
 		return messagePage("Username already taken.", ctx)
 	}
 	//create a BlogData document for this user
@@ -103,7 +104,7 @@ func deleteAccountPost(ctx *web.Context, val string) string {
 		username := readUsername(ctx)
 		var user User
 		rev, err := db.Retrieve("User_"+username, &user)
-		if err == nil && ctx.Params["Password"] == user.Password {
+		if err == nil && string(PasswordHash(ctx.Params["Password"])) == string(user.Password) {
 			if err := db.Delete("User_"+username, rev); err == nil {
 				//delete the user's blog data
 				bd := NewBlogData()

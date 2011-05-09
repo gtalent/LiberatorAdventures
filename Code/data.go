@@ -42,14 +42,11 @@ func initDB() bool {
 	return err1 == nil && err2 == nil && err3 == nil
 }
 
-type Document struct {
+
+type BlogData struct {
 	ID             string "_id"
 	Rev            string "_rev"
 	Type           string
-}
-
-type BlogData struct {
-	Document
 	CharacterIndex int
 	Characters     []string
 	PostIndex      int
@@ -64,7 +61,9 @@ func NewBlogData() BlogData {
 }
 
 type Cookies struct {
-	Document
+	ID             string "_id"
+	Rev            string "_rev"
+	Type           string
 	UserKeys map[string]string
 }
 
