@@ -215,7 +215,7 @@ func (me dummy) Write(p []byte) (n int, err os.Error) {
 func RunWebServer(line *ChannelLine) {
 	out = line
 	web.SetLogger(log.New(new(dummy), "", 0))
-	web.Config.CookieSecret = "Narf!"
+	web.Config.CookieSecret = Settings.CookieSecret()
 	web.Get("/Liberator/(.*)", get)
 	web.Post("/Liberator/(.*)", post)
 	web.Run("0.0.0.0:" + strconv.Uitoa(Settings.WebPort()))

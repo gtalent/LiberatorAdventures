@@ -21,8 +21,13 @@ func parseSetting(line, setting string) string {
 
 //Conveniently loads and holds all settings information.
 type ServerConf struct {
-	webHome, webRoot, databaseAddress, database string
+	webHome, webRoot, databaseAddress, database, cookieSecret string
 	webPort         uint
+}
+
+//The cookie secret used to ensure secure transmission of cookies.
+func (me *ServerConf) CookieSecret() string {
+	return me.cookieSecret
 }
 
 //The address at which to find the database.
@@ -59,6 +64,8 @@ func (me *ServerConf) Load(path string) os.Error {
 	for i := 0; i < len(list); i++ {
 		if strings.HasPrefix(list[i], "DatabaseAddress:") {
 			me.databaseAddress = parseSetting(list[i], "DatabaseAddress")
+		} else if strings.HasPrefix(list[i], "CookieSecret:") {
+			me.cookieSecret = parseSetting(list[i], "CookieSecret")
 		} else if strings.HasPrefix(list[i], "Database:") {
 			me.database = parseSetting(list[i], "Database")
 		} else if strings.HasPrefix(list[i], "WebHome:") {
