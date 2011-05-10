@@ -26,6 +26,7 @@ func readCookie(cookie string, ctx *web.Context) (string, bool) {
 }
 
 func readUserKey(ctx *web.Context) (string, bool) {
+	out.Put("Ni! 0.5")
 	return readCookie("UserKey", ctx)
 }
 
@@ -47,11 +48,11 @@ func readUsername(ctx *web.Context) string {
 }
 
 //Loads the bar at the top of the page with the title and session management links.
-func TopBar(ctx *web.Context) string {
+func TopBar(ctx *web.Context) (string, os.Error) {
 	_, signedin := readUserKey(ctx)
 	retval, err := LoadFile("TopBar.wgt")
 	if err != nil {
-		return "TopBar not found."
+		return "TopBar not found.", err
 	}
 	sessionManager := ""
 	postManager := ""
@@ -70,7 +71,7 @@ func TopBar(ctx *web.Context) string {
 	retval = strings.Replace(retval, "{{WebHome}}", Settings.WebHome(), -1)
 	retval = strings.Replace(retval, "{{SessionManager}}", sessionManager, -1)
 	retval = strings.Replace(retval, "{{PostManagement}}", postManager, -1)
-	return retval
+	return retval, nil
 }
 
 func postDiv() string {
@@ -105,7 +106,8 @@ func LoadTemplate(subTitle, bodyPath string, ctx *web.Context) (string, os.Error
 	}
 	body, err := LoadFile(bodyPath)
 	data = strings.Replace(data, "{{SubTitle}}", subTitle, -1)
-	data = strings.Replace(data, "{{TopBar}}", TopBar(ctx), -1)
+	topbar, err := TopBar(ctx)
+	data = strings.Replace(data, "{{TopBar}}", topbar, -1)
 	data = strings.Replace(data, "{{Body}}", body, -1)
 	return data, err
 }
@@ -122,6 +124,9 @@ func get(ctx *web.Context, val string) string {
 		return getEditPost(ctx, val)
 	case "", "index.html", "index.htm":
 		db, err := getDB()
+		if err != nil {
+			return messagePage("Cannot access database.", ctx)
+		}
 		data, err := LoadTemplate("", "index.html", ctx)
 		if err != nil {
 			break
@@ -175,7 +180,8 @@ func get(ctx *web.Context, val string) string {
 		}
 		if strings.HasSuffix(val, ".html") {
 		} else if strings.HasSuffix(val, ".wgt") {
-			retval = strings.Replace(retval, "{{TopBar}}", TopBar(ctx), -1)
+			topbar, _ := TopBar(ctx)
+			retval = strings.Replace(retval, "{{TopBar}}", topbar, -1)
 		}
 		return retval
 	}
@@ -189,17 +195,14 @@ func post(ctx *web.Context, val string) string {
 	case "CharacterEditor.html":
 		return characterEditorPost(ctx, val)
 	case "CreateUser":
-		//In: users/account.go
 		return createAccountPost(ctx, val)
 	case "DeleteAccount.html":
-		//In: users/account.go
 		return deleteAccountPost(ctx, val)
 	case "EditCharacter.html":
 		return editCharacterPost(ctx, val)
 	case "EditPost.html":
 		return postEditPost(ctx, val)
 	case "signin.html":
-		//In: users/session.go
 		return signinPost(ctx, val)
 	}
 	return fileNotFound
