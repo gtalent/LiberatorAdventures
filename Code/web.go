@@ -26,7 +26,6 @@ func readCookie(cookie string, ctx *web.Context) (string, bool) {
 }
 
 func readUserKey(ctx *web.Context) (string, bool) {
-	out.Put("Ni! 0.5")
 	return readCookie("UserKey", ctx)
 }
 
