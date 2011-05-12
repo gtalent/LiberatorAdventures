@@ -29,7 +29,7 @@ func signinPost(ctx *web.Context, val string) string {
 			}
 			return messagePage("Invalid username and password combination.", ctx)
 		}
-		return messagePage("Username not found.", ctx)
+		return messagePage("Error: Username may not exist.", ctx)
 	}
 	return messagePage("Could not access the database.", ctx)
 }
