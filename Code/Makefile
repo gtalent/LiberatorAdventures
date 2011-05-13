@@ -7,7 +7,7 @@ GOFILES=\
 
 include $(GOROOT)/src/Make.pkg
 
-install-pkgs: install-util install-html install-characters install-posts install-users install-schematics
+install-pkgs: install-util install-html install-characters install-posts install-users
 install-util:
 	gomake -C util install
 install-html:
@@ -16,8 +16,6 @@ install-characters: install-util
 	gomake -C characters install
 install-posts: install-util install-html
 	gomake -C posts install
-install-schematics: install-util
-	gomake -C schematics install
 install-users: install-util install-posts
 	gomake -C users install
 
