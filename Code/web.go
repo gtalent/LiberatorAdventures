@@ -13,7 +13,6 @@ import (
 	"web"
 	"libadv/char"
 	"libadv/posts"
-	"libadv/schematics"
 	"libadv/users"
 	"libadv/util"
 )
@@ -59,8 +58,6 @@ func get(ctx *web.Context, val string) string {
 		}
 		return util.MessagePage("You're signed out.", ctx)
 		break
-	case "Schematic.html":
-		return schematics.ViewSchematicGet(ctx, val)
 	case "signin.html":
 		if util.SignedIn(ctx) {
 			return util.MessagePage("You're already signed in.", ctx)

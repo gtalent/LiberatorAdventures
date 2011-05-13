@@ -24,7 +24,6 @@ clean-pkgs:
 	gomake -C html clean
 	gomake -C characters clean
 	gomake -C posts clean
-	gomake -C schematics clean
 	gomake -C users clean
 
 full-clean: clean clean-pkgs
