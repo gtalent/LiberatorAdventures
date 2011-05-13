@@ -29,7 +29,7 @@ clean-pkgs:
 	gomake -C schematics clean
 	gomake -C users clean
 
-full-clean: clean clean-mods
+full-clean: clean clean-pkgs
 	rm -f main
 
 link: install-pkgs package
