@@ -111,6 +111,14 @@ func post(ctx *web.Context, val string) string {
 	return util.FileNotFound
 }
 
+func index(ctx *web.Context, val string) string {
+	switch val {
+	case "Liberator":
+		ctx.Redirect(302, util.Settings.WebHome())
+	}
+	return val
+}
+
 type dummy struct{}
 
 func (me dummy) Write(p []byte) (n int, err os.Error) {
@@ -123,6 +131,7 @@ func RunWebServer(line *util.ChannelLine) {
 	web.SetLogger(log.New(new(dummy), "", 0))
 	web.Config.CookieSecret = util.Settings.CookieSecret()
 	web.Get("/Liberator/(.*)", get)
+	web.Get("/(.*)", index)
 	web.Post("/Liberator/(.*)", post)
 	web.Run("0.0.0.0:" + strconv.Uitoa(util.Settings.WebPort()))
 }
