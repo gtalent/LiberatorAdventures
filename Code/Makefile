@@ -7,20 +7,33 @@ GOFILES=\
 
 include $(GOROOT)/src/Make.pkg
 
-lib-util:
+install-pkgs: install-util install-html install-characters install-posts install-users install-schematics
+install-util:
 	gomake -C util install
-lib-html:
+install-html:
 	gomake -C html install
-mod-characters:
+install-characters: install-util
 	gomake -C characters install
-mod-posts:
+install-posts: install-util install-html
 	gomake -C posts install
-mod-schematics:
+install-schematics: install-util
 	gomake -C schematics install
-mod-users:
+install-users: install-util install-posts
 	gomake -C users install
-install-mods: lib-util lib-html mod-characters mod-posts mod-schematics mod-users
-link: install-mods package
+
+clean-pkgs:
+	gomake -C util clean
+	gomake -C html clean
+	gomake -C characters clean
+	gomake -C posts clean
+	gomake -C schematics clean
+	gomake -C users clean
+
+full-clean: clean clean-mods
+	rm -f main
+
+link: install-pkgs package
 	$(O)l -o main _go_.$(O)
+
 run: link
 	./main -p
