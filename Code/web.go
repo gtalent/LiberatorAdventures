@@ -6,127 +6,34 @@
 package main
 
 import (
-	"io/ioutil"
 	"strings"
 	"strconv"
 	"log"
 	"os"
 	"web"
+	"libadv/char"
+	"libadv/posts"
+	"libadv/schematics"
+	"libadv/users"
+	"libadv/util"
 )
-
-var fileNotFound string = "File not found, perhaps it was taken by Tusken Raiders?"
-var out *ChannelLine
-var cookies *Cookies = NewCookies()
-
-//Reads the requested cookie from the given cookie list.
-//Returns the desired cookie value if present, and an ok boolean value to indicate success or failure
-func readCookie(cookie string, ctx *web.Context) (string, bool) {
-	c, ok := ctx.GetSecureCookie(cookie)
-	return c, ok
-}
-
-func readUserKey(ctx *web.Context) (string, bool) {
-	return readCookie("UserKey", ctx)
-}
-
-func signedIn(ctx *web.Context) bool {
-	if key, ok := readUserKey(ctx); ok {
-		_, ok = cookies.UserKeys[key]
-		return ok
-	}
-	return false
-}
-
-func readUsername(ctx *web.Context) string {
-	if key, ok := readUserKey(ctx); ok {
-		if username, ok := cookies.UserKeys[key]; ok {
-			return username
-		}
-	}
-	return ""
-}
-
-//Loads the bar at the top of the page with the title and session management links.
-func TopBar(ctx *web.Context) (string, os.Error) {
-	_, signedin := readUserKey(ctx)
-	retval, err := LoadFile("TopBar.wgt")
-	if err != nil {
-		return "TopBar not found.", err
-	}
-	sessionManager := ""
-	postManager := ""
-	if !signedin {
-		if file, err := LoadFile("SessionManagerAnon.wgt"); err == nil {
-			sessionManager = file
-		}
-	} else {
-		if file, err := LoadFile("SessionManager.wgt"); err == nil {
-			sessionManager = file
-		}
-		if file, err := LoadFile("PostManagement.wgt"); err == nil {
-			postManager = file
-		}
-	}
-	retval = strings.Replace(retval, "{{WebHome}}", Settings.WebHome(), -1)
-	retval = strings.Replace(retval, "{{SessionManager}}", sessionManager, -1)
-	retval = strings.Replace(retval, "{{PostManagement}}", postManager, -1)
-	return retval, nil
-}
-
-func postDiv() string {
-	bytes, err := ioutil.ReadFile(Settings.WebRoot() + "post.wgt")
-	if err != nil {
-		return "<div><h3>{{Title}}</h3><br>{{Content}}</div>"
-	}
-	return string(bytes)
-}
-
-func messagePage(message string, ctx *web.Context) string {
-	if file, err := LoadTemplate("", "message.html", ctx); err == nil {
-		file = strings.Replace(file, "{{Message}}", message, -1)
-		return file
-	}
-	return fileNotFound
-}
-
-func LoadFile(path string) (string, os.Error) {
-	data, err := ioutil.ReadFile(Settings.WebRoot() + path)
-	return string(data), err
-}
-
-//Load the template file and fills in the body with the contents of the file at the given path.
-func LoadTemplate(subTitle, bodyPath string, ctx *web.Context) (string, os.Error) {
-	data, err := LoadFile("template.html")
-	if err != nil {
-		return fileNotFound, err
-	}
-	if len(subTitle) != 0 {
-		subTitle = " - " + subTitle
-	}
-	body, err := LoadFile(bodyPath)
-	data = strings.Replace(data, "{{SubTitle}}", subTitle, -1)
-	topbar, err := TopBar(ctx)
-	data = strings.Replace(data, "{{TopBar}}", topbar, -1)
-	data = strings.Replace(data, "{{Body}}", body, -1)
-	return data, err
-}
 
 func get(ctx *web.Context, val string) string {
 	switch val {
 	case "Account.html":
-		return accountManagementGet(ctx, val)
+		return users.AccountManagementGet(ctx, val)
 	case "Character.html":
-		return viewCharacterGet(ctx, val)
+		return char.ViewCharacterGet(ctx, val)
 	case "EditCharacter.html":
-		return editCharacterGet(ctx, val)
+		return char.EditCharacterGet(ctx, val)
 	case "EditPost.html":
-		return getEditPost(ctx, val)
+		return posts.GetEditPost(ctx, val)
 	case "", "index.html", "index.htm":
-		db, err := getDB()
+		db, err := util.GetDB()
 		if err != nil {
-			return messagePage("Cannot access database.", ctx)
+			return util.MessagePage("Cannot access database.", ctx)
 		}
-		data, err := LoadTemplate("", "index.html", ctx)
+		data, err := util.LoadTemplate("", "index.html", ctx)
 		if err != nil {
 			break
 		}
@@ -143,82 +50,82 @@ func get(ctx *web.Context, val string) string {
 		data = strings.Replace(data, "{{UserList}}", list, -1)
 		return data
 	case "signout.html":
-		if value, ok := readUserKey(ctx); ok {
+		if value, ok := util.ReadUserKey(ctx); ok {
 			ctx.SetSecureCookie("UserKey", value, -6000000)
-			cookies.UserKeys[value] = "", false
+			util.DeleteUserKey(value)
 		}
-		if username, ok := readCookie("Username", ctx); ok {
+		if username, ok := util.ReadCookie("Username", ctx); ok {
 			ctx.SetSecureCookie("Username", username, -6000000)
 		}
-		return messagePage("You're signed out.", ctx)
+		return util.MessagePage("You're signed out.", ctx)
 		break
 	case "Schematic.html":
-		return viewSchematicGet(ctx, val)
+		return schematics.ViewSchematicGet(ctx, val)
 	case "signin.html":
-		if signedIn(ctx) {
-			return messagePage("You're already signed in.", ctx)
+		if util.SignedIn(ctx) {
+			return util.MessagePage("You're already signed in.", ctx)
 		}
-		retval, err := LoadTemplate("", val, ctx)
+		retval, err := util.LoadTemplate("", val, ctx)
 		if err != nil {
 			break
 		}
 		return retval
 	case "view/", "view":
-		return viewPost(ctx, val)
+		return posts.ViewPost(ctx, val)
 	default:
 		if strings.HasSuffix(val, ".html") {
-			retval, err := LoadTemplate("", val, ctx)
+			retval, err := util.LoadTemplate("", val, ctx)
 			if err != nil {
 				break
 			}
 			return retval
 		}
-		retval, err := LoadFile(val)
+		retval, err := util.LoadFile(val)
 		if err != nil {
 			break
 		}
 		if strings.HasSuffix(val, ".html") {
 		} else if strings.HasSuffix(val, ".wgt") {
-			topbar, _ := TopBar(ctx)
+			topbar, _ := util.TopBar(ctx)
 			retval = strings.Replace(retval, "{{TopBar}}", topbar, -1)
 		}
 		return retval
 	}
-	return fileNotFound
+	return util.FileNotFound
 }
 
 func post(ctx *web.Context, val string) string {
 	switch val {
 	case "AddCharacter.html":
-		return addCharacterPost(ctx, val)
+		return char.AddCharacterPost(ctx, val)
 	case "CharacterEditor.html":
-		return characterEditorPost(ctx, val)
+		return char.CharacterEditorPost(ctx, val)
 	case "CreateUser":
-		return createAccountPost(ctx, val)
+		return users.CreateAccountPost(ctx, val)
 	case "DeleteAccount.html":
-		return deleteAccountPost(ctx, val)
+		return users.DeleteAccountPost(ctx, val)
 	case "EditCharacter.html":
-		return editCharacterPost(ctx, val)
+		return char.EditCharacterPost(ctx, val)
 	case "EditPost.html":
-		return postEditPost(ctx, val)
+		return posts.PostEditPost(ctx, val)
 	case "signin.html":
-		return signinPost(ctx, val)
+		return users.SigninPost(ctx, val)
 	}
-	return fileNotFound
+	return util.FileNotFound
 }
 
 type dummy struct{}
 
 func (me dummy) Write(p []byte) (n int, err os.Error) {
-	out.Put(string(p))
+	util.WebOut.Put(string(p))
 	return 0, nil
 }
 
-func RunWebServer(line *ChannelLine) {
-	out = line
+func RunWebServer(line *util.ChannelLine) {
+	util.WebOut = line
 	web.SetLogger(log.New(new(dummy), "", 0))
-	web.Config.CookieSecret = Settings.CookieSecret()
+	web.Config.CookieSecret = util.Settings.CookieSecret()
 	web.Get("/Liberator/(.*)", get)
 	web.Post("/Liberator/(.*)", post)
-	web.Run("0.0.0.0:" + strconv.Uitoa(Settings.WebPort()))
+	web.Run("0.0.0.0:" + strconv.Uitoa(util.Settings.WebPort()))
 }

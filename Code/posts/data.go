@@ -3,12 +3,14 @@
  * This file is released under the BSD license, as defined here:
  * 	http://www.opensource.org/licenses/bsd-license.php
  */
-package main
+package posts
+
+import "libadv/util"
 
 //Database views
 
-var design_posts DesignDoc = DesignDoc{ID:   "_design/posts",Lang: "javascript",
-	Views: view("by_owner", "function(doc) { if (doc.Type == 'Post')  emit(doc.Title, doc) }")}
+var Design_posts util.DesignDoc = util.DesignDoc{ID:   "_design/posts",Lang: "javascript",
+	Views: util.View("by_owner", "function(doc) { if (doc.Type == 'Post')  emit(doc.Title, doc) }")}
 
 type Post struct {
 	ID             string "_id"

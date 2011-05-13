@@ -3,34 +3,37 @@
  * This file is released under the BSD license, as defined here:
  * 	http://www.opensource.org/licenses/bsd-license.php
  */
-package main
+package posts
 
 import (
 	"web"
 	"strings"
 	"strconv"
+	"libadv/util"
+	"libadv/char"
+	"libadv/html"
 )
 
 //The HTTP get method for getting the page for editing posts.
-func getEditPost(ctx *web.Context, val string) string {
-	db, err := getDB()
+func GetEditPost(ctx *web.Context, val string) string {
+	db, err := util.GetDB()
 	if err != nil {
-		return fileNotFound
+		return util.FileNotFound
 	}
 	post := NewPost()
 	postID, ok := ctx.Params["PostID"]
 	var newPost bool
 	if ok && postID != "NewPost" {
 		db.Retrieve(postID, &post)
-		if userKey, ok := readUserKey(ctx); !(ok && cookies.UserKeys[userKey] == post.Owner) {
-			return messagePage("You do not have permission to edit this post.", ctx)
+		if userKey, ok := util.ReadUserKey(ctx); !(ok && util.GetUserKey(userKey) == post.Owner) {
+			return util.MessagePage("You do not have permission to edit this post.", ctx)
 		}
 		newPost = false
 	} else {
 		postID = "NewPost"
 		newPost = true
 	}
-	if file, err := LoadTemplate("", "EditPost.html", ctx); err == nil {
+	if file, err := util.LoadTemplate("", "EditPost.html", ctx); err == nil {
 		if newPost {
 			file = strings.Replace(file, "{{Message}}", "<h3>Writing New Post</h3>", 1)
 		} else {
@@ -43,16 +46,16 @@ func getEditPost(ctx *web.Context, val string) string {
 		authors := ""
 		defaultAuthor := post.Author
 		if defaultAuthor != "" {
-			char := NewCharacter()
+			char := char.NewCharacter()
 			db.Retrieve(defaultAuthor, &char)
 			authors += "\t\t<option value=\"" + defaultAuthor + "\">" + char.Name + " (" + char.Game + " - " + char.World + ")</option>\n"
 		}
 		authors += "\t\t<option value=\"\">Me</option>\n"
-		blog := NewBlogData()
-		db.Retrieve("BlogData_" + readUsername(ctx), &blog)
+		blog := util.NewBlogData()
+		db.Retrieve("BlogData_" + util.ReadUsername(ctx), &blog)
 		for i := 0; i < len(blog.Characters); i++ {
 			if blog.Characters[i] != defaultAuthor {
-			char := NewCharacter()
+			char := char.NewCharacter()
 			db.Retrieve(blog.Characters[i], &char)
 			authors += "\t\t<option value=\"" + blog.Characters[i] + "\">" + char.Name + " (" + char.Game + " - " + char.World + ")</option>\n"
 		}}
@@ -60,14 +63,14 @@ func getEditPost(ctx *web.Context, val string) string {
 
 		return file
 	}
-	return fileNotFound
+	return util.FileNotFound
 }
 
 //The HTTP post method for editing posts.
-func postEditPost(ctx *web.Context, val string) string {
-	db, err := getDB()
+func PostEditPost(ctx *web.Context, val string) string {
+	db, err := util.GetDB()
 	if err != nil {
-		return fileNotFound
+		return util.FileNotFound
 	}
 	post := NewPost()
 	post.ID = ctx.Params["PostID"]
@@ -78,14 +81,14 @@ func postEditPost(ctx *web.Context, val string) string {
 	pleaseSignIn := "You must sign in to post."
 	username := ""
 	//authenticate the user
-	if userkey, ok := readUserKey(ctx); !ok { //is the user signed in?
-		return messagePage(pleaseSignIn, ctx)
-	} else if username, ok = cookies.UserKeys[userkey]; !ok {
-		return messagePage(pleaseSignIn, ctx)
+	if userkey, ok := util.ReadUserKey(ctx); !ok { //is the user signed in?
+		return util.MessagePage(pleaseSignIn, ctx)
+	} else if username = util.GetUserKey(userkey); username == "" {
+		return util.MessagePage(pleaseSignIn, ctx)
 	} else if post.ID != "NewPost" { //if it is not a new post, make sure the user has the right to edit it
 		db.Retrieve(post.ID, &post)
 		if ok && post.Owner != username {
-			return messagePage("You do not have permission to edit this post.", ctx)
+			return util.MessagePage("You do not have permission to edit this post.", ctx)
 		}
 	}
 	//save the post
@@ -95,7 +98,7 @@ func postEditPost(ctx *web.Context, val string) string {
 	post.Owner = username
 	if newPost {
 		//manage the BlogData
-		blogData := NewBlogData()
+		blogData := util.NewBlogData()
 		db.Retrieve("BlogData_"+username, &blogData)
 		blogData.PostIndex++
 		post.ID = "Post_" + strconv.Itoa(blogData.PostIndex) + "_" + username
@@ -105,23 +108,23 @@ func postEditPost(ctx *web.Context, val string) string {
 	} else {
 		db.Edit(&post)
 	}
-	return messagePage("Post saved.", ctx)
+	return util.MessagePage("Post saved.", ctx)
 }
 
-func viewPost(ctx *web.Context, val string) string {
-	db, err := getDB()
+func ViewPost(ctx *web.Context, val string) string {
+	db, err := util.GetDB()
 	if err != nil {
-		return fileNotFound
+		return util.FileNotFound
 	}
 	user := ctx.Params["user"]
-	retval, err := LoadTemplate(user, "posts.html", ctx)
+	retval, err := util.LoadTemplate(user, "posts.html", ctx)
 	if err != nil {
-		return fileNotFound
+		return util.FileNotFound
 	}
-	blogData := NewBlogData()
+	blogData := util.NewBlogData()
 	_, err = db.Retrieve("BlogData_"+user, &blogData)
 	if err != nil {
-		return fileNotFound
+		return util.FileNotFound
 	}
 	post := NewPost()
 	posts := ""
@@ -140,11 +143,11 @@ func viewPost(ctx *web.Context, val string) string {
 }
 
 func (me *Post) HTML(ctx *web.Context) string {
-	retval := postDiv()
+	retval := util.PostDiv()
 	retval = strings.Replace(retval, "{{Title}}", me.Title, -1)
 	if len(me.Author) != 0 {
-		char := NewCharacter()
-		db, err := getDB()
+		char := char.NewCharacter()
+		db, err := util.GetDB()
 		if err == nil {
 			db.Retrieve(me.Author, &char)
 			retval = strings.Replace(retval, "{{Author}}", "<a href=\"Character.html?CharID=" + me.Author + "\">" + char.Name + "</a>", -1)
@@ -155,8 +158,8 @@ func (me *Post) HTML(ctx *web.Context) string {
 		retval = strings.Replace(retval, "{{Author}}", me.Owner, -1)
 	}
 	retval = strings.Replace(retval, "{{Content}}", me.Content, -1)
-	if username := readUsername(ctx); me.Owner == username {
-		ownerControls := TextLink("Edit", "EditPost.html?PostID="+me.ID)
+	if username := util.ReadUsername(ctx); me.Owner == username {
+		ownerControls := html.TextLink("Edit", "EditPost.html?PostID="+me.ID)
 		retval = strings.Replace(retval, "{{OwnerControls}}", ownerControls.String(), -1)
 	} else {
 		retval = strings.Replace(retval, "{{OwnerControls}}", "", -1)

@@ -3,10 +3,12 @@
  * This file is released under the BSD license, as defined here:
  * 	http://www.opensource.org/licenses/bsd-license.php
  */
-package main
+package users
 
-var design_users DesignDoc = DesignDoc{ID:   "_design/users", Lang: "javascript",
-	Views: view("all", "function(doc) {if (doc.Type == 'User') emit(doc.Username, doc)}")}
+import "libadv/util"
+
+var Design_users util.DesignDoc = util.DesignDoc{ID:   "_design/users", Lang: "javascript",
+	Views: util.View("all", "function(doc) {if (doc.Type == 'User') emit(doc.Username, doc)}")}
 
 type User struct {
 	ID             string "_id"

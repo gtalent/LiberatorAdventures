@@ -3,7 +3,7 @@
  * This file is released under the BSD license, as defined here:
  * 	http://www.opensource.org/licenses/bsd-license.php
  */
-package main
+package html
 
 //Represents an HTML document.
 type Page struct {

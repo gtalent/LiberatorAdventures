@@ -6,3 +6,4 @@ Build requirements:
 		- Go, http://golang.org/doc/install.html
 		- web.go, http://getwebgo.com
 		- couch-go, http://code.google.com/p/couch-go/
+		- in the Code directory, run 'make install-mods' before starting, and 'make link' to produce an executable

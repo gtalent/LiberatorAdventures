@@ -8,7 +8,23 @@ package main
 import (
 	"fmt"
 	"flag"
+	"libadv/char"
+	"libadv/posts"
+	"libadv/util"
+	"libadv/users"
 )
+
+//Initializes the database by adding the design documents.
+func initDB() bool {
+	db, err := util.GetDB()
+	if err != nil {
+		return false
+	}
+	_, _, err1 := db.Insert(users.Design_users)
+	_, _, err2 := db.Insert(posts.Design_posts)
+	_, _, err3 := db.Insert(char.Design_characters)
+	return err1 == nil && err2 == nil && err3 == nil
+}
 
 func main() {
 	dbinit := flag.Bool("initDB", false, "Initialize the database, and then end execution.")
@@ -16,7 +32,7 @@ func main() {
 	p := flag.Bool("p", false, "Indicates whether or not the program should print output to the terminal.")
 	flag.Parse()
 
-	if err := Settings.Load(*settings); err != nil {
+	if err := util.Settings.Load(*settings); err != nil {
 		if *p {
 			fmt.Println(err.String())
 		}
@@ -29,7 +45,7 @@ func main() {
 	}
 
 	mainChan := make(chan string)
-	webChan := NewChannelLine("Web", mainChan)
+	webChan := util.NewChannelLine("Web", mainChan)
 	go RunWebServer(webChan)
 
 	if *p {

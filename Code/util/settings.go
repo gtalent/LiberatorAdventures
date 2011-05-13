@@ -4,7 +4,7 @@
  * 	http://www.opensource.org/licenses/bsd-license.php
  */
 //File for loading and managing the server configuration.
-package main
+package util
 
 import (
 	"io/ioutil"

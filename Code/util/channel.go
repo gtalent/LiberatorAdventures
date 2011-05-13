@@ -3,7 +3,7 @@
  * This file is released under the BSD license, as defined here:
  * 	http://www.opensource.org/licenses/bsd-license.php
  */
-package main
+package util
 
 //Used to route messages to the main channel.
 type ChannelLine struct {
@@ -23,3 +23,4 @@ func NewChannelLine(name string, channel chan string) *ChannelLine {
 func (me *ChannelLine) Put(message string) {
 	me.channel <- (me.name + ":\t" + message)
 }
+

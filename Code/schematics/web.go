@@ -3,29 +3,31 @@
  * This file is released under the BSD license, as defined here:
  * 	http://www.opensource.org/licenses/bsd-license.php
  */
-package main
+package schematics
 
 import (
 	"web"
 	"strings"
 	"strconv"
+	"libadv/html"
+	"libadv/util"
 )
 
-func viewSchematicGet(ctx *web.Context, val string) string {
-	if file, err := LoadTemplate("", "Schematic.html", ctx); err == nil {
+func ViewSchematicGet(ctx *web.Context, val string) string {
+	if file, err := util.LoadTemplate("", "Schematic.html", ctx); err == nil {
 		schemID := ctx.Params["SchemID"]
-		db, err := getDB()
+		db, err := util.GetDB()
 		if err != nil {
-			return fileNotFound
+			return util.FileNotFound
 		}
 
 		schem := NewSchematic()
 		db.Retrieve(schemID, &schem)
 
-		materials := NewUnorderedList()
-		materialTemp, err := LoadFile("widgets/Material.html")
+		materials := html.NewUnorderedList()
+		materialTemp, err := util.LoadFile("widgets/Material.html")
 		if err != nil {
-			return fileNotFound
+			return util.FileNotFound
 		}
 		size := len(schem.Materials)
 		for i := 0; i < size; i++ {
@@ -38,5 +40,5 @@ func viewSchematicGet(ctx *web.Context, val string) string {
 		file = strings.Replace(file, "{{Materials}}", materials.String(), -1)
 		return file
 	}
-	return fileNotFound
+	return util.FileNotFound
 }
