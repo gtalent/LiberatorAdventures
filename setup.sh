@@ -5,7 +5,7 @@ cd $workspace/web.go
 gomake install
 cd ../../
 
-hg clone https://couch-go.googlecode.com/hg/ $workspace/couch-go
+hg clone https://gtalent2@gtalent2-libadv.googlecode.com/hg/ $workspace/couch-go
 cd $workspace/couch-go
 gomake install
 cd ../../
