@@ -15,7 +15,7 @@ type User struct {
 	Rev            string "_rev"
 	Type           string
 	Username, Email string
-	Password []byte
+	Password util.Password
 }
 
 //Returns a new User object by value.

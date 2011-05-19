@@ -23,7 +23,7 @@ func SigninPost(ctx *web.Context, val string) string {
 	user := NewUser()
 	if db, err := util.GetDB(); err == nil {
 		if _, err = db.Retrieve("User_"+username, &user); err == nil {
-			if string(util.PasswordHash(password)) == string(user.Password) {
+			if string(util.PasswordHash(password, -1).Hash) == string(user.Password.Hash) {
 				num := rand.Int63()
 				key := username + "_" + strconv.Itoa64(num)
 				util.SetUserKey(key, username)
@@ -65,7 +65,7 @@ func CreateAccountPost(ctx *web.Context, val string) string {
 	user.Username = username
 	user.ID = "User_" + username
 	user.Email = email
-	user.Password = util.PasswordHash(password)
+	user.Password = util.PasswordHash(password, -1)
 	db, err := util.GetDB()
 	if err != nil {
 		return util.FileNotFound
@@ -106,7 +106,7 @@ func DeleteAccountPost(ctx *web.Context, val string) string {
 		username := util.ReadUsername(ctx)
 		var user User
 		rev, err := db.Retrieve("User_"+username, &user)
-		if err == nil && string(util.PasswordHash(ctx.Params["Password"])) == string(user.Password) {
+		if err == nil && string(util.PasswordHash(ctx.Params["Password"], -1).Hash) == string(user.Password.Hash) {
 			if err := db.Delete("User_"+username, rev); err == nil {
 				//delete the user's blog data
 				bd := util.NewBlogData()
