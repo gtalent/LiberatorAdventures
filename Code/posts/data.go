@@ -10,7 +10,7 @@ import "libadv/util"
 //Database views
 
 var Design_posts util.DesignDoc = util.DesignDoc{ID:   "_design/posts",Lang: "javascript",
-	Views: util.View("by_owner", "function(doc) { if (doc.Type == 'Post')  emit(doc.Title, doc) }")}
+	Views: util.View("all", "function(doc) { if (doc.Type == 'Post')  emit(doc.Title, doc) }")}
 
 type Post struct {
 	ID             string "_id"
