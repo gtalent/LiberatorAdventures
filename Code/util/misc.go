@@ -10,7 +10,7 @@ import (
 )
 
 type Password struct {
-	Version uint
+	Version int
 	Hash    []byte
 }
 
@@ -21,7 +21,7 @@ func PasswordHash(password string, version int) Password {
 	default:
 		bytes := []byte(password)
 		hasher := sha512.New()
-		for i := 0; i < 100; i++ {
+		for i := 0; i < 1000; i++ {
 			hasher.Write(bytes)
 			bytes = hasher.Sum()
 		}
