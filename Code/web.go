@@ -47,6 +47,24 @@ func get(ctx *web.Context, val string) string {
 			list += "</ul>"
 		}
 		data = strings.Replace(data, "{{UserList}}", list, -1)
+
+		if postList, err := db.QueryIds("_design/posts/_view/all", nil); err == nil {
+			list = "<ul>\n"
+			start := 10
+			if start >= len(postList) {
+				start = len(postList) - 1
+			}
+			for i := start; i > -1; i-- {
+				var post posts.Post
+				_, err := db.Retrieve(postList[i], &post)
+				if err == nil {
+					list += "\t<il>" + post.HTML(ctx) + "</il><br>\n"
+				}
+			}
+			list += "</ul>"
+		}
+		data = strings.Replace(data, "{{Posts}}", list, -1)
+
 		return data
 	case "signout.html":
 		if value, ok := util.ReadUserKey(ctx); ok {
