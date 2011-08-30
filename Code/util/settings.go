@@ -16,13 +16,13 @@ import (
 var Settings ServerConf
 
 func parseSetting(line, setting string) string {
-	return strings.Trim(strings.Replace(line, setting + ":", "", -1), " \t")
+	return strings.Trim(strings.Replace(line, setting+":", "", -1), " \t")
 }
 
 //Conveniently loads and holds all settings information.
 type ServerConf struct {
 	webHome, webRoot, databaseAddress, database, cookieSecret string
-	webPort         uint
+	webPort                                                   uint
 }
 
 //The cookie secret used to ensure secure transmission of cookies.
@@ -60,7 +60,7 @@ func (me *ServerConf) Load(path string) os.Error {
 	if err != nil {
 		return err
 	}
-	list := strings.Split(string(bytes), "\n", -1)
+	list := strings.Split(string(bytes), "\n")
 	for i := 0; i < len(list); i++ {
 		if strings.HasPrefix(list[i], "DatabaseAddress:") {
 			me.databaseAddress = parseSetting(list[i], "DatabaseAddress")
